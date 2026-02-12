@@ -1,0 +1,18 @@
+# Claude Code
+.claude/
+
+# macOS
+.DS_Store
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Environment
+.env
+.env*.local
+
+# OS
+Thumbs.db

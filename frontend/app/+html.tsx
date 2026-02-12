@@ -94,7 +94,20 @@ body {
   to { opacity: 1; transform: translateY(0); }
 }
 
-/* 主题切换平滑过渡 */
+/* 主题切换 — 圆形扩散遮罩 */
+@keyframes themeReveal {
+  from { clip-path: circle(0% at 50% 50%); }
+  to { clip-path: circle(150vmax at 50% 50%); }
+}
+
+/* 扩散期间禁用所有 transition，防止遮罩边缘下面的元素还在渐变 */
+.theme-transitioning *,
+.theme-transitioning *::before,
+.theme-transitioning *::after {
+  transition: none !important;
+}
+
+/* 非扩散时的默认过渡（hover 等仍需要） */
 *, *::before, *::after {
   transition: background-color 0.35s ease, border-color 0.3s ease;
 }

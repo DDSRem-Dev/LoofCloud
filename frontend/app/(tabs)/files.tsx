@@ -103,7 +103,8 @@ export default function FilesScreen() {
           borderRadius={radius.xl}
           padding={isMobile ? '$3' : '$4'}
           // @ts-ignore web-only
-          style={glassCard(isDark)}
+          className="stagger-item"
+          style={{ ...glassCard(isDark), '--stagger-delay': '0ms' } as any}
         >
           <XStack alignItems="center" gap="$3">
             <Search size={18} color={mutedColor} />
@@ -175,6 +176,9 @@ export default function FilesScreen() {
                     paddingVertical="$3"
                     alignItems="center"
                     gap="$3"
+                    // @ts-ignore web-only
+                    className="stagger-item"
+                    style={{ '--stagger-delay': `${index * 50}ms` } as any}
                     {...(index < filteredFiles.length - 1 && {
                       borderBottomWidth: 1,
                       borderBottomColor: borderColor,
@@ -217,12 +221,14 @@ export default function FilesScreen() {
                   hoverStyle={{
                     backgroundColor: isDark ? 'rgba(255,255,255,0.03)' : 'rgba(0,0,0,0.015)',
                   }}
+                  // @ts-ignore web-only
+                  className="stagger-item"
                   {...(index < filteredFiles.length - 1 && {
                     borderBottomWidth: 1,
                     borderBottomColor: borderColor,
                   })}
                   // @ts-ignore
-                  style={{ cursor: 'default' }}
+                  style={{ cursor: 'default', '--stagger-delay': `${index * 50}ms` } as any}
                 >
                   <XStack flex={1} alignItems="center" gap="$3">
                     <YStack

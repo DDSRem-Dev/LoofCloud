@@ -55,10 +55,13 @@ export default function DashboardScreen() {
                   setActiveCard(index)
                   setTimeout(() => setActiveCard(null), 500)
                 }}
+                // @ts-ignore web-only
+                className="stagger-item"
                 style={{
                   flex: 1,
                   minWidth: isMobile ? '45%' : 220,
                   flexBasis: isMobile ? '45%' : undefined,
+                  '--stagger-delay': `${index * 80}ms`,
                 } as any}
               >
                 <Card
@@ -132,6 +135,9 @@ export default function DashboardScreen() {
                     alignItems="center"
                     gap="$3"
                     borderRadius={radius.lg}
+                    // @ts-ignore web-only
+                    className="stagger-item"
+                    style={{ '--stagger-delay': `${index * 60}ms` } as any}
                     {...(index < recentActivities.length - 1 && {
                       borderBottomWidth: 1,
                       borderBottomColor: borderColor,

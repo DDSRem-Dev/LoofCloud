@@ -151,9 +151,10 @@ export const shadows = {
 
 // 渐变色常量 - 蓝白粉配色
 export const gradients = {
-  // 页面背景渐变
-  bgStart: '#fdfbfb',
-  bgEnd: '#ebedee',
+  // 页面背景渐变 - 天蓝/薰衣草/樱花粉三段色调
+  bgStart: '#eaf4ff',
+  bgMid: '#f3eefa',
+  bgEnd: '#fdf0f4',
   // 侧边栏激活按钮渐变 (天蓝 → 樱花粉)
   shokaButton: 'linear-gradient(to right, #5bcffa, #f5abb9)',
   // Header 渐变
@@ -161,8 +162,9 @@ export const gradients = {
 } as const
 
 export const darkGradients = {
-  bgStart: '#21252b',
-  bgEnd: '#000000',
+  bgStart: '#0a0f1e',
+  bgMid: '#100d20',
+  bgEnd: '#180c18',
   shokaButton: 'linear-gradient(to right, rgba(91,207,250,0.8), rgba(245,171,185,0.8))',
   header: 'linear-gradient(-225deg, #2d3230, #2d3035)',
 } as const

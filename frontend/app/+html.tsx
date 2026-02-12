@@ -80,4 +80,57 @@ body {
 }
 .card-active {
   animation: cardSelect 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+/* 页面入场动画 */
+@keyframes pageEnter {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* 交错入场动画 */
+@keyframes staggerFadeUp {
+  from { opacity: 0; transform: translateY(12px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* 主题切换平滑过渡 */
+*, *::before, *::after {
+  transition: background-color 0.35s ease, border-color 0.3s ease;
+}
+
+/* 页面入场 */
+.page-enter {
+  animation: pageEnter 0.4s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+/* 交错入场 */
+.stagger-item {
+  animation: staggerFadeUp 0.5s cubic-bezier(0.22, 1, 0.36, 1) both;
+  animation-delay: var(--stagger-delay, 0ms);
+}
+
+/* Aurora 极光光斑 — 漂浮 + 缩放 + 呼吸 */
+@keyframes auroraFloat1 {
+  0%, 100% { transform: translate(0, 0) scale(1); opacity: 1; }
+  25% { transform: translate(40px, -30px) scale(1.1); opacity: 0.7; }
+  50% { transform: translate(10px, 20px) scale(0.95); opacity: 0.85; }
+  75% { transform: translate(-30px, -10px) scale(1.06); opacity: 0.6; }
+}
+@keyframes auroraFloat2 {
+  0%, 100% { transform: translate(0, 0) scale(1); opacity: 1; }
+  30% { transform: translate(-35px, 25px) scale(0.92); opacity: 0.65; }
+  60% { transform: translate(25px, -35px) scale(1.08); opacity: 0.9; }
+  80% { transform: translate(-10px, 10px) scale(1.02); opacity: 0.5; }
+}
+@keyframes auroraFloat3 {
+  0%, 100% { transform: translate(0, 0) scale(1); opacity: 1; }
+  40% { transform: translate(20px, 30px) scale(1.12); opacity: 0.6; }
+  70% { transform: translate(-15px, -20px) scale(0.94); opacity: 0.85; }
+}
+
+/* 脉冲光圈 */
+@keyframes particlePulse {
+  0%, 100% { transform: scale(1); opacity: 0.6; }
+  50% { transform: scale(1.8); opacity: 0.15; }
 }`;

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import { YStack, XStack, Text, Button, useTheme } from 'tamagui'
 import { usePathname, useRouter } from 'expo-router'
-import { Dimensions, Pressable } from 'react-native'
+import { Dimensions } from 'react-native'
 import { LayoutDashboard, FolderOpen, Settings, Sun, Moon, Cloud, X } from 'lucide-react-native'
 import { gradients, darkGradients } from '@/constants/DesignTokens'
 import { useAppTheme } from '@/contexts/ThemeContext'
@@ -57,10 +57,13 @@ export function Sidebar({ mobileOpen, onClose }: SidebarProps) {
   useEffect(() => {
     if (mobileOpen) {
       setVisible(true)
-      requestAnimationFrame(() => setAnimating(true))
+      // Double rAF ensures browser has painted the initial state before transitioning
+      requestAnimationFrame(() => {
+        requestAnimationFrame(() => setAnimating(true))
+      })
     } else {
       setAnimating(false)
-      const timer = setTimeout(() => setVisible(false), 250)
+      const timer = setTimeout(() => setVisible(false), 350)
       return () => clearTimeout(timer)
     }
   }, [mobileOpen])
@@ -82,6 +85,8 @@ export function Sidebar({ mobileOpen, onClose }: SidebarProps) {
       borderRightWidth={isMobile ? 0 : 1}
       borderRightColor={theme.borderColor?.get()}
       justifyContent="space-between"
+      // @ts-ignore web-only
+      style={{ transition: 'background-color 0.35s ease' }}
     >
       {/* Logo / Title */}
       <YStack>
@@ -91,7 +96,12 @@ export function Sidebar({ mobileOpen, onClose }: SidebarProps) {
           alignItems="center"
           justifyContent="space-between"
         >
-          <XStack alignItems="center" gap="$3">
+          <XStack
+            alignItems="center"
+            gap="$3"
+            cursor="pointer"
+            onPress={() => handleNav('/')}
+          >
             <Cloud size={28} color={isDark ? '#7dd9fb' : '#5bcffa'} />
             <Text fontSize={20} fontWeight="700" color={isDark ? '#f2f2f2' : '#333333'}>
               LoofCloud
@@ -210,42 +220,47 @@ export function Sidebar({ mobileOpen, onClose }: SidebarProps) {
   }
 
   // Mobile: animated drawer overlay
+  // Use native div elements for proper CSS transition support
+  // (RN Pressable/YStack strip unknown CSS properties like transition)
   if (!visible) return null
 
   return (
-    <XStack
-      position="absolute"
-      top={0}
-      left={0}
-      right={0}
-      bottom={0}
-      zIndex={100}
-      // @ts-ignore web-only
-      style={{ position: 'fixed' }}
+    <div
+      style={{
+        position: 'fixed',
+        top: 0,
+        left: 0,
+        right: 0,
+        bottom: 0,
+        zIndex: 100,
+        display: 'flex',
+        flexDirection: 'row',
+      }}
     >
       {/* Backdrop - fade in/out */}
-      <Pressable
-        onPress={onClose}
+      <div
+        onClick={onClose}
         style={{
           position: 'absolute',
           top: 0, left: 0, right: 0, bottom: 0,
           backgroundColor: 'rgba(0,0,0,0.5)',
           opacity: animating ? 1 : 0,
-          transition: 'opacity 0.25s ease',
-        } as any}
+          transition: 'opacity 0.3s ease',
+          cursor: 'pointer',
+        }}
       />
       {/* Drawer - slide in/out */}
-      <YStack
-        zIndex={101}
-        // @ts-ignore web-only
+      <div
         style={{
+          position: 'relative',
+          zIndex: 101,
           transform: animating ? 'translateX(0)' : `translateX(-${SIDEBAR_WIDTH}px)`,
-          transition: 'transform 0.3s cubic-bezier(0.32, 0.72, 0, 1)',
-          boxShadow: animating ? '4px 0 24px rgba(0,0,0,0.15)' : 'none',
+          transition: 'transform 0.35s cubic-bezier(0.32, 0.72, 0, 1)',
+          boxShadow: animating ? '4px 0 24px rgba(0,0,0,0.18)' : 'none',
         }}
       >
         {sidebarContent}
-      </YStack>
-    </XStack>
+      </div>
+    </div>
   )
 }

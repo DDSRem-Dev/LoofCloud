@@ -151,7 +151,7 @@ export default function SettingsScreen() {
         </XStack>
 
         {/* Setting Groups */}
-        {settingGroups.map((group) => {
+        {settingGroups.map((group, index) => {
           const Icon = group.icon
           return (
             <Card
@@ -159,7 +159,8 @@ export default function SettingsScreen() {
               borderRadius={radius.xl}
               padding={isMobile ? '$4' : '$5'}
               // @ts-ignore web-only
-              style={glassCard(isDark)}
+              className="stagger-item"
+              style={{ ...glassCard(isDark), '--stagger-delay': `${index * 100}ms` } as any}
             >
               <YStack gap="$4">
                 {/* Group Header */}

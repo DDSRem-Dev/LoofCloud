@@ -1,6 +1,7 @@
 import React from 'react'
 import { XStack, Text, Button } from 'tamagui'
 import { Menu, Cloud } from 'lucide-react-native'
+import { useRouter } from 'expo-router'
 import { useAppTheme } from '@/contexts/ThemeContext'
 
 interface MobileHeaderProps {
@@ -9,6 +10,7 @@ interface MobileHeaderProps {
 
 export function MobileHeader({ onMenuPress }: MobileHeaderProps) {
   const { isDark } = useAppTheme()
+  const router = useRouter()
 
   return (
     <XStack
@@ -24,6 +26,7 @@ export function MobileHeader({ onMenuPress }: MobileHeaderProps) {
         position: 'sticky',
         top: 0,
         zIndex: 50,
+        transition: 'background-color 0.35s ease',
       }}
     >
       <Button
@@ -35,7 +38,12 @@ export function MobileHeader({ onMenuPress }: MobileHeaderProps) {
       >
         <Menu size={24} color={isDark ? '#f2f2f2' : '#333333'} />
       </Button>
-      <XStack alignItems="center" gap="$2">
+      <XStack
+        alignItems="center"
+        gap="$2"
+        cursor="pointer"
+        onPress={() => router.push('/' as any)}
+      >
         <Cloud size={22} color={isDark ? '#7dd9fb' : '#5bcffa'} />
         <Text fontSize={17} fontWeight="700" color={isDark ? '#f2f2f2' : '#333333'}>
           LoofCloud

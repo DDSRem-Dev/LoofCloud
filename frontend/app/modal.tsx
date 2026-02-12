@@ -1,10 +1,9 @@
 import { StatusBar } from 'expo-status-bar';
 import { Platform } from 'react-native';
-import { YStack, XStack, Text, Card, H2, Separator, Button } from 'tamagui';
+import { YStack, Text, Card, H2, Separator, Button, Paragraph } from 'tamagui';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
-import EditScreenInfo from '@/components/EditScreenInfo';
-import { colors, radius, shadows } from '@/constants/DesignTokens';
+import { colors, radius } from '@/constants/DesignTokens';
 
 export default function ModalScreen() {
   const router = useRouter();
@@ -30,34 +29,39 @@ export default function ModalScreen() {
         >
           <YStack gap="$3" alignItems="center">
             <H2 color="$color" fontWeight="600">
-              信息
+              关于 LoofCloud
             </H2>
             <Separator
               marginVertical="$4"
               borderColor="$borderColor"
               width="80%"
             />
-            <EditScreenInfo path="app/modal.tsx" />
+            <Paragraph color="$color" textAlign="center">
+              LoofCloud 是一个个人云存储管理平台。
+            </Paragraph>
 
             <Button
+              unstyled
+              borderWidth={0}
               marginTop="$4"
-              backgroundColor={colors.primary}
-              color="#ffffff"
-              borderRadius={radius.md}
-              fontWeight="600"
+              borderRadius={999}
+              height={44}
               width="100%"
-              pressStyle={{
-                backgroundColor: colors.primaryHover,
-                scale: 0.98,
+              cursor="pointer"
+              // @ts-ignore web-only
+              style={{
+                background: `linear-gradient(to right, ${colors.primary}, ${colors.primaryHover})`,
+                transition: 'transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1)',
               }}
+              hoverStyle={{ scale: 1.02 }}
+              pressStyle={{ scale: 0.97 }}
               onPress={() => router.back()}
             >
-              关闭
+              <Text color="#ffffff" fontWeight="600" fontSize={15}>关闭</Text>
             </Button>
           </YStack>
         </Card>
 
-        {/* Use a light status bar on iOS to account for the black space above the modal */}
         <StatusBar style={Platform.OS === 'ios' ? 'light' : 'auto'} />
       </YStack>
     </SafeAreaView>

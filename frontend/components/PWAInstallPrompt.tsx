@@ -6,7 +6,7 @@ import { colors, radius } from '@/constants/DesignTokens'
 
 /**
  * PWA 安装提示弹窗组件
- * 粉色美化设计，仅在 Web 平台显示
+ * 基于 astro-koharu 主题设计，仅在 Web 平台显示
  */
 export function PWAInstallPrompt() {
   const { isInstallable, isInstalled, promptInstall } = usePWA()
@@ -75,8 +75,8 @@ export function PWAInstallPrompt() {
       }}
     >
       <Card
-        backgroundColor={colors.secondary}
-        borderRadius={radius.lg}
+        backgroundColor={colors.primary}
+        borderRadius={radius.xl}
         padding="$4"
         maxWidth={500}
         width="100%"
@@ -87,52 +87,55 @@ export function PWAInstallPrompt() {
         shadowRadius={8}
         shadowOffset={{ width: 0, height: 4 }}
         style={{
-          border: `2px solid ${colors.secondaryHover}`,
+          border: `2px solid ${colors.primaryHover}`,
         }}
       >
         <YStack gap="$3">
           {/* 标题和关闭按钮 */}
           <XStack justifyContent="space-between" alignItems="flex-start">
             <YStack flex={1} gap="$2">
-              <H4 color="#ffffff" fontWeight="600">
+              <H4 color={colors.primaryForeground} fontWeight="600">
                 安装 LoofCloud
               </H4>
-              <Paragraph color="#ffffff" opacity={0.9} fontSize="$4">
+              <Paragraph color={colors.primaryForeground} opacity={0.9} fontSize="$4">
                 将应用添加到主屏幕，获得更好的体验
               </Paragraph>
             </YStack>
             <Button
-              size="$2"
-              circular
+              unstyled
+              borderWidth={0}
+              width={32}
+              height={32}
+              borderRadius={999}
+              alignItems="center"
+              justifyContent="center"
+              cursor="pointer"
               backgroundColor="transparent"
-              pressStyle={{ opacity: 0.7 }}
+              hoverStyle={{ backgroundColor: 'rgba(255,255,255,0.15)' }}
+              pressStyle={{ scale: 0.9 }}
               onPress={handleDismiss}
-              style={{
-                minWidth: 32,
-                minHeight: 32,
-              }}
             >
-              <Text color="#ffffff" fontSize="$5">×</Text>
+              <Text color={colors.primaryForeground} fontSize="$5">×</Text>
             </Button>
           </XStack>
 
           {/* 功能列表 */}
           <YStack gap="$2" marginTop="$2">
             <XStack gap="$2" alignItems="center">
-              <Text color="#ffffff" fontSize="$6">✨</Text>
-              <Text color="#ffffff" opacity={0.9} fontSize="$3">
+              <Text color={colors.primaryForeground} fontSize="$6">✨</Text>
+              <Text color={colors.primaryForeground} opacity={0.9} fontSize="$3">
                 快速访问，无需浏览器
               </Text>
             </XStack>
             <XStack gap="$2" alignItems="center">
-              <Text color="#ffffff" fontSize="$6">🚀</Text>
-              <Text color="#ffffff" opacity={0.9} fontSize="$3">
+              <Text color={colors.primaryForeground} fontSize="$6">🚀</Text>
+              <Text color={colors.primaryForeground} opacity={0.9} fontSize="$3">
                 离线使用，更快加载
               </Text>
             </XStack>
             <XStack gap="$2" alignItems="center">
-              <Text color="#ffffff" fontSize="$6">📱</Text>
-              <Text color="#ffffff" opacity={0.9} fontSize="$3">
+              <Text color={colors.primaryForeground} fontSize="$6">📱</Text>
+              <Text color={colors.primaryForeground} opacity={0.9} fontSize="$3">
                 原生体验，流畅操作
               </Text>
             </XStack>
@@ -141,32 +144,45 @@ export function PWAInstallPrompt() {
           {/* 按钮组 */}
           <XStack gap="$3" marginTop="$3">
             <Button
+              unstyled
+              borderWidth={0}
               flex={1}
-              backgroundColor="#ffffff"
-              color={colors.secondary}
-              borderRadius={radius.md}
-              fontWeight="600"
-              pressStyle={{
-                backgroundColor: '#f0f0f0',
-                scale: 0.98,
-              }}
+              height={42}
+              borderRadius={999}
+              backgroundColor={colors.primaryForeground}
+              alignItems="center"
+              justifyContent="center"
+              cursor="pointer"
+              // @ts-ignore web-only
+              style={{ transition: 'transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1)' }}
+              hoverStyle={{ scale: 1.02 }}
+              pressStyle={{ scale: 0.97 }}
               onPress={handleInstall}
             >
-              立即安装
+              <Text color={colors.primary} fontWeight="600" fontSize={14}>
+                立即安装
+              </Text>
             </Button>
             <Button
-              backgroundColor="transparent"
-              borderColor="#ffffff"
+              unstyled
+              height={42}
+              borderRadius={999}
+              borderColor={colors.primaryForeground}
               borderWidth={1}
-              color="#ffffff"
-              borderRadius={radius.md}
-              pressStyle={{
-                opacity: 0.7,
-                scale: 0.98,
-              }}
+              backgroundColor="transparent"
+              paddingHorizontal={20}
+              alignItems="center"
+              justifyContent="center"
+              cursor="pointer"
+              // @ts-ignore web-only
+              style={{ transition: 'transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1)' }}
+              hoverStyle={{ backgroundColor: 'rgba(255,255,255,0.1)', scale: 1.02 }}
+              pressStyle={{ scale: 0.97 }}
               onPress={handleDismiss}
             >
-              稍后
+              <Text color={colors.primaryForeground} fontWeight="500" fontSize={14}>
+                稍后
+              </Text>
             </Button>
           </XStack>
         </YStack>

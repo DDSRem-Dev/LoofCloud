@@ -3,22 +3,11 @@ import { createTamagui } from 'tamagui'
 
 /**
  * Tamagui 设计系统配置
- * 
- * 配色方案：
+ *
+ * 配色方案：蓝白粉
  * - Primary: #5bcffa (天蓝色)
  * - Secondary: #f5abb9 (樱花粉)
  * - Background: #ffffff (纯白)
- * - Card Background: #f8f9fa (极浅灰)
- * 
- * 圆角：大圆角设计 (TrueSheet 风格)
- * - md: 16px
- * - lg: 24px
- * 
- * 阴影：极轻微的弥散阴影，在组件中使用 boxShadow 属性
- * 示例：
- * - sm: boxShadow="0px 1px 2px rgba(0, 0, 0, 0.05)"
- * - md: boxShadow="0px 2px 4px rgba(0, 0, 0, 0.08)"
- * - lg: boxShadow="0px 4px 8px rgba(0, 0, 0, 0.1)"
  */
 const appConfig = createTamagui({
   ...config,
@@ -28,76 +17,134 @@ const appConfig = createTamagui({
       ...config.themes.light,
       // Primary colors - 天蓝色
       primary: '#5bcffa',
-      primaryHover: '#4ab8e0',
-      primaryPress: '#3aa1c6',
-      
+      primaryHover: '#45c4f0',
+      primaryPress: '#32b8e5',
+      primaryForeground: '#f0faff',
+
       // Secondary colors - 樱花粉
       secondary: '#f5abb9',
-      secondaryHover: '#e89ba8',
-      secondaryPress: '#db8b97',
-      
-      // Background colors - 纯白背景
+      secondaryHover: '#f299aa',
+      secondaryPress: '#ee8599',
+      secondaryForeground: '#ffffff',
+
+      // Muted colors
+      muted: '#f4f4f5',
+      mutedForeground: '#595959',
+
+      // Accent colors
+      accent: '#fdf2f4',
+      accentForeground: '#18181b',
+
+      // Destructive colors
+      destructive: '#ef4444',
+      destructiveForeground: '#fafafa',
+
+      // Success colors
+      success: '#22c55e',
+      successForeground: '#ffffff',
+
+      // Warning colors
+      warning: '#f59e0b',
+      warningForeground: '#ffffff',
+
+      // Background colors
       background: '#ffffff',
-      backgroundHover: '#f8f9fa',
-      backgroundPress: '#f1f3f5',
-      
-      // Card background - 极浅灰
-      cardBackground: '#f8f9fa',
-      
+      backgroundHover: '#fafafa',
+      backgroundPress: '#f5f5f5',
+
+      // Card background
+      cardBackground: '#ffffff',
+      cardForeground: '#0a0a0a',
+
       // Text colors
-      color: '#1a1a1a',
-      colorHover: '#2a2a2a',
-      colorPress: '#0a0a0a',
-      
+      color: '#333333',
+      colorHover: '#404040',
+      colorPress: '#262626',
+      foreground: '#333333',
+
       // Border colors
-      borderColor: '#e5e7eb',
-      borderColorHover: '#d1d5db',
-      borderColorPress: '#9ca3af',
+      borderColor: '#e5e5e5',
+      borderColorHover: '#d4d4d4',
+      borderColorPress: '#a3a3a3',
+      input: '#e5e5e5',
+
+      // Ring color
+      ring: '#5bcffa',
     },
     dark: {
       ...config.themes.dark,
-      // Primary colors
-      primary: '#5bcffa',
-      primaryHover: '#6dd5fb',
-      primaryPress: '#4ab8e0',
-      
-      // Secondary colors
-      secondary: '#f5abb9',
-      secondaryHover: '#f8b8c4',
-      secondaryPress: '#e89ba8',
-      
+      // Primary colors - 亮天蓝色
+      primary: '#7dd9fb',
+      primaryHover: '#93e0fc',
+      primaryPress: '#5bcffa',
+      primaryForeground: '#f0faff',
+
+      // Secondary colors - 亮樱花粉
+      secondary: '#f7bdc8',
+      secondaryHover: '#f9ced6',
+      secondaryPress: '#f5abb9',
+      secondaryForeground: '#ffffff',
+
+      // Muted colors
+      muted: '#262626',
+      mutedForeground: '#a1a1a1',
+
+      // Accent colors
+      accent: '#1f1f1f',
+      accentForeground: '#fafafa',
+
+      // Destructive colors
+      destructive: '#dc2626',
+      destructiveForeground: '#fef2f2',
+
+      // Success colors
+      success: '#16a34a',
+      successForeground: '#ffffff',
+
+      // Warning colors
+      warning: '#d97706',
+      warningForeground: '#ffffff',
+
       // Background colors
-      background: '#0a0a0a',
+      background: '#0d0e0f',
       backgroundHover: '#1a1a1a',
-      backgroundPress: '#2a2a2a',
-      
+      backgroundPress: '#262626',
+
       // Card background
-      cardBackground: '#1a1a1a',
-      
+      cardBackground: '#212121',
+      cardForeground: '#f2f2f2',
+
       // Text colors
-      color: '#ffffff',
-      colorHover: '#f5f5f5',
+      color: '#f2f2f2',
+      colorHover: '#ffffff',
       colorPress: '#e5e5e5',
-      
+      foreground: '#f2f2f2',
+
       // Border colors
-      borderColor: '#2a2a2a',
+      borderColor: '#282828',
       borderColorHover: '#3a3a3a',
       borderColorPress: '#4a4a4a',
+      input: '#282828',
+
+      // Ring color
+      ring: '#5bcffa',
     },
   },
   tokens: {
     ...config.tokens,
-    // Custom radius tokens - 大圆角设计 (TrueSheet 风格)
     radius: {
       ...config.tokens.radius,
-      md: 16,
-      lg: 24,
-      xl: 32,
+      sm: 2,
+      DEFAULT: 8,
+      md: 6,
+      lg: 8,
+      xl: 12,
+      '2xl': 16,
+      '3xl': 24,
     },
   },
   fonts: {
     ...config.fonts,
-    // 现代无衬线字体系统
     body: {
       ...config.fonts.body,
       family: 'System',

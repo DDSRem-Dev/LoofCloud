@@ -16,7 +16,7 @@ export default function Root({ children }: { children: React.ReactNode }) {
         <link rel="manifest" href="/manifest.json" />
         <link rel="manifest" href="/_expo/static/js/web/manifest.json" />
 
-        {/* Theme Color - 天蓝色 */}
+        {/* Theme Color - 粉红主色 */}
         <meta name="theme-color" content="#5bcffa" />
         <meta name="msapplication-TileColor" content="#5bcffa" />
 
@@ -64,4 +64,20 @@ body {
   body {
     background-color: #000;
   }
+}
+
+/* Global animations */
+@keyframes navPop {
+  0% { transform: scale(0.92); }
+  50% { transform: scale(1.05); }
+  100% { transform: scale(1); }
+}
+@keyframes cardSelect {
+  0% { transform: scale(1); }
+  40% { transform: scale(1.06); }
+  70% { transform: scale(0.97); }
+  100% { transform: scale(1); }
+}
+.card-active {
+  animation: cardSelect 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
 }`;

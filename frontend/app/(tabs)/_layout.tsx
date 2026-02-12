@@ -1,70 +1,40 @@
-import React from 'react';
-import FontAwesome from '@expo/vector-icons/FontAwesome';
-import { Link, Tabs } from 'expo-router';
-import { Pressable } from 'react-native';
-import { useTheme } from 'tamagui';
-
-import { useColorScheme } from '@/components/useColorScheme';
-import { useClientOnlyValue } from '@/components/useClientOnlyValue';
-import { colors } from '@/constants/DesignTokens';
-
-// You can explore the built-in icon families and icons on the web at https://icons.expo.fyi/
-function TabBarIcon(props: {
-  name: React.ComponentProps<typeof FontAwesome>['name'];
-  color: string;
-}) {
-  return <FontAwesome size={28} style={{ marginBottom: -3 }} {...props} />;
-}
+import React, { useState } from 'react'
+import { Slot } from 'expo-router'
+import { XStack, YStack } from 'tamagui'
+import { Sidebar, useMobile } from '@/components/shared/Sidebar'
+import { MobileHeader } from '@/components/shared/MobileHeader'
+import { useAppTheme } from '@/contexts/ThemeContext'
+import { gradients, darkGradients } from '@/constants/DesignTokens'
 
 export default function TabLayout() {
-  const colorScheme = useColorScheme();
-  const theme = useTheme();
+  const { isDark } = useAppTheme()
+  const isMobile = useMobile()
+  const [drawerOpen, setDrawerOpen] = useState(false)
+
+  const bgGradient = isDark
+    ? `linear-gradient(135deg, ${darkGradients.bgStart}, ${darkGradients.bgEnd})`
+    : `linear-gradient(135deg, ${gradients.bgStart}, ${gradients.bgEnd})`
 
   return (
-    <Tabs
-      screenOptions={{
-        tabBarActiveTintColor: colors.primary, // 使用主题色 - 天蓝色
-        tabBarInactiveTintColor: theme.color.get(),
-        tabBarStyle: {
-          backgroundColor: theme.background.get(),
-          borderTopColor: theme.borderColor.get(),
-        },
-        headerStyle: {
-          backgroundColor: theme.background.get(),
-        },
-        headerTintColor: theme.color.get(),
-        // Disable the static render of the header on web
-        // to prevent a hydration error in React Navigation v6.
-        headerShown: useClientOnlyValue(false, true),
-      }}>
-      <Tabs.Screen
-        name="index"
-        options={{
-          title: '首页',
-          tabBarIcon: ({ color }) => <TabBarIcon name="home" color={color} />,
-          headerRight: () => (
-            <Link href="/modal" asChild>
-              <Pressable>
-                {({ pressed }) => (
-                  <FontAwesome
-                    name="info-circle"
-                    size={25}
-                    color={theme.color.get()}
-                    style={{ marginRight: 15, opacity: pressed ? 0.5 : 1 }}
-                  />
-                )}
-              </Pressable>
-            </Link>
-          ),
-        }}
+    <XStack flex={1} height="100vh">
+      <Sidebar
+        mobileOpen={drawerOpen}
+        onClose={() => setDrawerOpen(false)}
       />
-      <Tabs.Screen
-        name="two"
-        options={{
-          title: '设置',
-          tabBarIcon: ({ color }) => <TabBarIcon name="cog" color={color} />,
+      <YStack
+        flex={1}
+        // @ts-ignore web-only style
+        style={{
+          background: bgGradient,
+          minHeight: '100vh',
+          overflowY: 'auto',
         }}
-      />
-    </Tabs>
-  );
+      >
+        {isMobile && (
+          <MobileHeader onMenuPress={() => setDrawerOpen(true)} />
+        )}
+        <Slot />
+      </YStack>
+    </XStack>
+  )
 }

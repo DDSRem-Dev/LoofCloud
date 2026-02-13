@@ -109,11 +109,16 @@ export function Sidebar({ mobileOpen, onClose }: SidebarProps) {
             <Button
               unstyled
               borderWidth={0}
+              borderRadius={8}
               padding="$2"
               cursor="pointer"
+              backgroundColor="transparent"
+              hoverStyle={{
+                backgroundColor: isDark ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.04)',
+              }}
               onPress={onClose}
             >
-              <X size={22} color={isDark ? '#a1a1a1' : '#666666'} />
+              <X size={22} color={(theme as any).mutedForeground?.get()} />
             </Button>
           )}
         </XStack>

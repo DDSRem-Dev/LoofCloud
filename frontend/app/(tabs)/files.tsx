@@ -202,8 +202,13 @@ export default function FilesScreen() {
                     <Button
                       unstyled
                       borderWidth={0}
+                      borderRadius={radius.md}
                       padding="$2"
                       cursor="pointer"
+                      backgroundColor="transparent"
+                      hoverStyle={{
+                        backgroundColor: isDark ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.05)',
+                      }}
                     >
                       <MoreHorizontal size={18} color={mutedColor} />
                     </Button>
@@ -255,6 +260,7 @@ export default function FilesScreen() {
                       padding="$1.5"
                       borderRadius={radius.md}
                       cursor="pointer"
+                      backgroundColor="transparent"
                       hoverStyle={{
                         backgroundColor: isDark ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.05)',
                       }}

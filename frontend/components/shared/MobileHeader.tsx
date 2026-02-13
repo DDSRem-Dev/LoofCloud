@@ -1,5 +1,5 @@
 import React from 'react'
-import { XStack, Text, Button } from 'tamagui'
+import { XStack, Text, Button, useTheme } from 'tamagui'
 import { Menu, Cloud } from 'lucide-react-native'
 import { useRouter } from 'expo-router'
 import { useAppTheme } from '@/contexts/ThemeContext'
@@ -10,6 +10,7 @@ interface MobileHeaderProps {
 
 export function MobileHeader({ onMenuPress }: MobileHeaderProps) {
   const { isDark } = useAppTheme()
+  const theme = useTheme()
   const router = useRouter()
 
   return (
@@ -32,11 +33,16 @@ export function MobileHeader({ onMenuPress }: MobileHeaderProps) {
       <Button
         unstyled
         borderWidth={0}
+        borderRadius={8}
         padding="$2"
         cursor="pointer"
+        backgroundColor="transparent"
+        hoverStyle={{
+          backgroundColor: isDark ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.04)',
+        }}
         onPress={onMenuPress}
       >
-        <Menu size={24} color={isDark ? '#f2f2f2' : '#333333'} />
+        <Menu size={24} color={(theme as any).mutedForeground?.get()} />
       </Button>
       <XStack
         alignItems="center"

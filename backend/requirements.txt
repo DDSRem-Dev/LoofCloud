@@ -1,0 +1,12 @@
+fastapi[standard]>=0.129.0
+uvicorn[standard]>=0.40.0
+beanie>=2.0.1
+motor>=3.7.1
+redis[hiredis]>=7.1.1
+pydantic>=2.12.5
+pydantic-settings>=2.12.0
+python-jose[cryptography]>=3.5.0
+passlib[bcrypt]>=1.7.4
+python-multipart>=0.0.22
+apscheduler>=4.0.0a6
+click>=8.1.0

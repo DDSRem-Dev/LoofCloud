@@ -85,8 +85,6 @@ export function Sidebar({ mobileOpen, onClose }: SidebarProps) {
       borderRightWidth={isMobile ? 0 : 1}
       borderRightColor={theme.borderColor?.get()}
       justifyContent="space-between"
-      // @ts-ignore web-only
-      style={{ transition: 'background-color 0.35s ease' }}
     >
       {/* Logo / Title */}
       <YStack>

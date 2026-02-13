@@ -94,22 +94,15 @@ body {
   to { opacity: 1; transform: translateY(0); }
 }
 
-/* 主题切换 — 圆形扩散遮罩 */
-@keyframes themeReveal {
-  from { clip-path: circle(0% at 50% 50%); }
-  to { clip-path: circle(150vmax at 50% 50%); }
+/* View Transition — 纯净交叉溶解，旧画面静止，新画面淡入覆盖 */
+::view-transition-old(root) {
+  animation: none;
 }
-
-/* 扩散期间禁用所有 transition，防止遮罩边缘下面的元素还在渐变 */
-.theme-transitioning *,
-.theme-transitioning *::before,
-.theme-transitioning *::after {
-  transition: none !important;
+::view-transition-new(root) {
+  animation: theme-dissolve 0.35s cubic-bezier(0.22, 1, 0.36, 1);
 }
-
-/* 非扩散时的默认过渡（hover 等仍需要） */
-*, *::before, *::after {
-  transition: background-color 0.35s ease, border-color 0.3s ease;
+@keyframes theme-dissolve {
+  from { opacity: 0; }
 }
 
 /* 页面入场 */

@@ -57,7 +57,6 @@ export default function TabLayout() {
         // @ts-ignore web-only style
         style={{
           background: meshBg,
-          transition: 'background 0.5s ease',
           minHeight: '100vh',
           overflowY: 'auto',
           position: 'relative',
@@ -88,7 +87,6 @@ export default function TabLayout() {
             filter: `blur(${isMobile ? 80 : 120}px)`,
             WebkitFilter: `blur(${isMobile ? 80 : 120}px)`,
             animation: 'auroraFloat1 20s ease-in-out infinite',
-            transition: 'background-color 0.5s ease',
           } as any} />
           {/* 樱花粉光斑 - 左下角 */}
           <div style={{
@@ -102,7 +100,6 @@ export default function TabLayout() {
             filter: `blur(${isMobile ? 70 : 100}px)`,
             WebkitFilter: `blur(${isMobile ? 70 : 100}px)`,
             animation: 'auroraFloat2 25s ease-in-out infinite',
-            transition: 'background-color 0.5s ease',
           } as any} />
           {/* 蓝紫光斑 - 中部 */}
           <div style={{
@@ -116,7 +113,6 @@ export default function TabLayout() {
             filter: `blur(${isMobile ? 60 : 90}px)`,
             WebkitFilter: `blur(${isMobile ? 60 : 90}px)`,
             animation: 'auroraFloat3 18s ease-in-out infinite',
-            transition: 'background-color 0.5s ease',
           } as any} />
 
           {/* 脉冲光圈 — 周期性扩散消散 */}
@@ -134,7 +130,6 @@ export default function TabLayout() {
               border: `1.5px solid ${r.color}`,
               opacity: isDark ? 0.3 : 0.45,
               animation: `particlePulse 8s ease-in-out ${r.delay} infinite`,
-              transition: 'opacity 0.5s ease',
             }} />
           ))}
         </div>

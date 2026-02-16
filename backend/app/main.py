@@ -29,8 +29,9 @@ async def lifespan(_: FastAPI):
 app = FastAPI(
     title=cfg.app.name,
     lifespan=lifespan,
-    docs_url="/docs" if cfg.app.debug else None,
-    redoc_url="/redoc" if cfg.app.debug else None,
+    docs_url="/docs",
+    redoc_url="/redoc",
+    openapi_url="/openapi.json",
 )
 
 app.add_middleware(RequestLoggingMiddleware)
@@ -58,7 +59,7 @@ async def health_check():
 if __name__ == "__main__":
     run(
         "app.main:app",
-        host="127.0.0.1",
-        port=8000,
+        host="0.0.0.0",
+        port=8999,
         reload=cfg.app.debug,
     )

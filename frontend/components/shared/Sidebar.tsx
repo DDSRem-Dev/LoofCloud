@@ -2,9 +2,10 @@ import React, { useState, useEffect } from 'react'
 import { YStack, XStack, Text, Button, useTheme } from 'tamagui'
 import { usePathname, useRouter } from 'expo-router'
 import { Dimensions } from 'react-native'
-import { LayoutDashboard, FolderOpen, Settings, Sun, Moon, Cloud, X } from 'lucide-react-native'
+import { LayoutDashboard, FolderOpen, Settings, Sun, Moon, Cloud, X, Users, LogOut } from 'lucide-react-native'
 import { gradients, darkGradients } from '@/constants/DesignTokens'
 import { useAppTheme } from '@/contexts/ThemeContext'
+import { useAuth } from '@/contexts/AuthContext'
 
 interface NavItem {
   label: string
@@ -15,6 +16,7 @@ interface NavItem {
 const navItems: NavItem[] = [
   { label: '仪表盘', icon: LayoutDashboard, href: '/' },
   { label: '文件管理', icon: FolderOpen, href: '/files' },
+  { label: '用户管理', icon: Users, href: '/users' },
   { label: '配置', icon: Settings, href: '/settings' },
 ]
 
@@ -48,7 +50,13 @@ export function Sidebar({ mobileOpen, onClose }: SidebarProps) {
   const router = useRouter()
   const theme = useTheme()
   const { isDark, toggleColorScheme } = useAppTheme()
+  const { logout } = useAuth()
   const isMobile = useMobile()
+
+  const handleLogout = () => {
+    if (isMobile && onClose) onClose()
+    logout()
+  }
 
   // Animate drawer mount/unmount
   const [visible, setVisible] = useState(false)
@@ -178,8 +186,8 @@ export function Sidebar({ mobileOpen, onClose }: SidebarProps) {
         </YStack>
       </YStack>
 
-      {/* Bottom: Theme Toggle */}
-      <YStack paddingHorizontal="$3" paddingBottom="$4">
+      {/* Bottom: Theme Toggle + Logout */}
+      <YStack paddingHorizontal="$3" paddingBottom="$4" gap="$1">
         <Button
           unstyled
           borderRadius={10}
@@ -201,6 +209,26 @@ export function Sidebar({ mobileOpen, onClose }: SidebarProps) {
             )}
             <Text fontSize={15} color={isDark ? '#a1a1a1' : '#666666'}>
               {isDark ? '浅色模式' : '深色模式'}
+            </Text>
+          </XStack>
+        </Button>
+        <Button
+          unstyled
+          borderRadius={10}
+          borderWidth={0}
+          paddingHorizontal="$4"
+          paddingVertical="$3"
+          cursor="pointer"
+          backgroundColor="transparent"
+          hoverStyle={{
+            backgroundColor: isDark ? 'rgba(239,68,68,0.12)' : 'rgba(239,68,68,0.08)',
+          }}
+          onPress={handleLogout}
+        >
+          <XStack alignItems="center" gap="$3">
+            <LogOut size={20} color="#ef4444" />
+            <Text fontSize={15} color="#ef4444">
+              退出登录
             </Text>
           </XStack>
         </Button>

@@ -1,11 +1,3 @@
-"""日志管理器 - 非阻塞异步文件写入 + 彩色控制台输出
-
-使用方式：
-    from app.core.logger import logger
-    logger.info("服务启动")
-    logger.error("发生错误: %s", err)
-"""
-
 import asyncio
 import logging
 import queue

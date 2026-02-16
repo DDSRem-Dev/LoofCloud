@@ -7,6 +7,7 @@ import 'react-native-reanimated'
 import { TamaguiProvider, Theme } from 'tamagui'
 import config from '../tamagui.config'
 
+import { AuthProvider } from '@/contexts/AuthContext'
 import { ThemeProvider, useAppTheme } from '@/contexts/ThemeContext'
 import { PWAInstallPrompt } from '@/components/PWAInstallPrompt'
 
@@ -41,7 +42,9 @@ export default function RootLayout() {
 
   return (
     <ThemeProvider>
-      <RootLayoutNav />
+      <AuthProvider>
+        <RootLayoutNav />
+      </AuthProvider>
     </ThemeProvider>
   )
 }
@@ -55,6 +58,7 @@ function RootLayoutNav() {
         <NavThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
           <Stack>
             <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+            <Stack.Screen name="login" options={{ headerShown: false }} />
             <Stack.Screen name="modal" options={{ presentation: 'modal' }} />
           </Stack>
           <PWAInstallPrompt />

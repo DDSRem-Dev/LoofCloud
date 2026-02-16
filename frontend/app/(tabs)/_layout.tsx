@@ -1,20 +1,29 @@
 import React, { useState, useEffect, useRef } from 'react'
-import { Slot, usePathname } from 'expo-router'
+import { Slot, usePathname, useRouter } from 'expo-router'
 import { XStack, YStack } from 'tamagui'
 import { Sidebar, useMobile } from '@/components/shared/Sidebar'
 import { MobileHeader } from '@/components/shared/MobileHeader'
 import { useAppTheme } from '@/contexts/ThemeContext'
+import { useAuth } from '@/contexts/AuthContext'
 import { gradients, darkGradients } from '@/constants/DesignTokens'
 
 export default function TabLayout() {
   const { isDark } = useAppTheme()
+  const { token, loading, isLoggingOut } = useAuth()
+  const router = useRouter()
   const isMobile = useMobile()
   const [drawerOpen, setDrawerOpen] = useState(false)
   const pathname = usePathname()
-
-  // Page transition: fade + slide up on route change
+  // Page transition: fade + slide up on route change（必须在任何 return 之前声明，保证 hooks 数量一致）
   const [pageEntered, setPageEntered] = useState(true)
   const isFirstRender = useRef(true)
+
+  useEffect(() => {
+    if (loading) return
+    if (!token) {
+      router.replace('/login' as any)
+    }
+  }, [loading, token, router])
 
   useEffect(() => {
     if (isFirstRender.current) {
@@ -28,6 +37,8 @@ export default function TabLayout() {
       })
     })
   }, [pathname])
+
+  if (!loading && !token) return null
 
   // Mesh gradient: multiple radial layers for organic color blending
   const meshBg = isDark
@@ -142,9 +153,9 @@ export default function TabLayout() {
             flex: 1,
             position: 'relative',
             zIndex: 1,
-            opacity: pageEntered ? 1 : 0,
-            transform: pageEntered ? 'translateY(0)' : 'translateY(8px)',
-            transition: 'opacity 0.4s cubic-bezier(0.22, 1, 0.36, 1), transform 0.4s cubic-bezier(0.22, 1, 0.36, 1)',
+            opacity: pageEntered && !isLoggingOut ? 1 : 0,
+            transform: pageEntered && !isLoggingOut ? 'translateY(0)' : 'translateY(10px)',
+            transition: 'opacity 0.32s cubic-bezier(0.22, 1, 0.36, 1), transform 0.32s cubic-bezier(0.22, 1, 0.36, 1)',
           }}
         >
           <Slot />

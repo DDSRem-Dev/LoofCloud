@@ -19,10 +19,10 @@ export function StyledInput({ hasError, style, ...props }: StyledInputProps) {
 
   const textColor = isDark ? '#f2f2f2' : '#333333'
   const mutedColor = isDark ? '#a1a1a1' : '#666666'
-  const borderColor = isDark ? '#282828' : '#e5e5e5'
+  const borderColor = isDark ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.08)'
   const hoverBorder = isDark ? 'rgba(91,207,250,0.3)' : 'rgba(91,207,250,0.4)'
   const focusBorder = isDark ? 'rgba(125,217,251,0.5)' : 'rgba(91,207,250,0.6)'
-  const inputBg = isDark ? 'rgba(26, 26, 26, 0.8)' : 'rgba(245, 245, 245, 0.8)'
+  const inputBg = isDark ? 'rgba(255, 255, 255, 0.06)' : 'rgba(255, 255, 255, 0.55)'
   const errorBorder = '#ef4444'
   const focusShadow = isDark
     ? '0 0 0 3px rgba(91,207,250,0.15), inset 0 1px 2px rgba(0,0,0,0.2)'
@@ -49,8 +49,8 @@ export function StyledInput({ hasError, style, ...props }: StyledInputProps) {
       {...(Platform.OS === 'web' && {
         style: {
           transition: 'border-color 0.25s ease, box-shadow 0.25s ease',
-          backdropFilter: 'blur(8px)',
-          WebkitBackdropFilter: 'blur(8px)',
+          backdropFilter: 'blur(12px) saturate(180%)',
+          WebkitBackdropFilter: 'blur(12px) saturate(180%)',
           ...(typeof style === 'object' ? style : {}),
         } as any,
         focusStyle: {
@@ -76,10 +76,10 @@ export function useWebInputProps() {
 
   const textColor = isDark ? '#f2f2f2' : '#333333'
   const mutedColor = isDark ? '#a1a1a1' : '#666666'
-  const borderColor = isDark ? '#282828' : '#e5e5e5'
+  const borderColor = isDark ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.08)'
   const hoverBorder = isDark ? 'rgba(91,207,250,0.3)' : 'rgba(91,207,250,0.4)'
   const focusBorder = isDark ? 'rgba(125,217,251,0.5)' : 'rgba(91,207,250,0.6)'
-  const inputBg = isDark ? 'rgba(26, 26, 26, 0.8)' : 'rgba(245, 245, 245, 0.8)'
+  const inputBg = isDark ? 'rgba(255, 255, 255, 0.06)' : 'rgba(255, 255, 255, 0.55)'
   const focusShadow = isDark
     ? '0 0 0 3px rgba(91,207,250,0.15), inset 0 1px 2px rgba(0,0,0,0.2)'
     : '0 0 0 3px rgba(91,207,250,0.12), inset 0 1px 2px rgba(0,0,0,0.04)'
@@ -116,10 +116,10 @@ export function useWebInputProps() {
           border: `1px solid ${currentBorder}`,
           borderRadius: radius.xl,
           outline: 'none',
-          backdropFilter: 'blur(8px)',
-          WebkitBackdropFilter: 'blur(8px)',
+          backdropFilter: 'blur(12px) saturate(180%)',
+          WebkitBackdropFilter: 'blur(12px) saturate(180%)',
           transition: 'border-color 0.25s ease, box-shadow 0.25s ease',
-          boxShadow: isFocused && !hasError ? focusShadow : 'none',
+          boxShadow: isFocused && !hasError ? focusShadow : (isDark ? 'inset 0 1px 2px rgba(0,0,0,0.15)' : 'inset 0 1px 2px rgba(0,0,0,0.03)'),
         } as React.CSSProperties,
       }
     },
@@ -146,10 +146,10 @@ export function useWebInputProps() {
           border: `1px solid ${currentBorder}`,
           borderRadius: radius.xl,
           background: inputBg,
-          backdropFilter: 'blur(8px)',
-          WebkitBackdropFilter: 'blur(8px)',
+          backdropFilter: 'blur(12px) saturate(180%)',
+          WebkitBackdropFilter: 'blur(12px) saturate(180%)',
           transition: 'border-color 0.25s ease, box-shadow 0.25s ease',
-          boxShadow: isFocused && !hasError ? focusShadow : 'none',
+          boxShadow: isFocused && !hasError ? focusShadow : (isDark ? 'inset 0 1px 2px rgba(0,0,0,0.15)' : 'inset 0 1px 2px rgba(0,0,0,0.03)'),
         } as React.CSSProperties,
       }
     },

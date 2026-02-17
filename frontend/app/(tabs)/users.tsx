@@ -7,7 +7,6 @@ import {
   H2,
   H4,
   Paragraph,
-  Input,
   Button,
 } from 'tamagui'
 import { ScrollView, Platform, Pressable, Modal, View } from 'react-native'
@@ -16,6 +15,7 @@ import { radius, gradients, darkGradients, glassCard } from '@/constants/DesignT
 import { useAppTheme } from '@/contexts/ThemeContext'
 import { useAuth } from '@/contexts/AuthContext'
 import { useMobile } from '@/components/shared/Sidebar'
+import { StyledInput } from '@/components/shared/StyledInput'
 import {
   apiListUsers,
   apiCreateUser,
@@ -29,6 +29,102 @@ const ROW_STAGGER = 50
 const MODAL_ANIM_MS = 250
 
 type UserTab = 'current' | 'list'
+
+/** 角色分段选择器 - 独立组件避免内联定义导致 transition 失效 */
+function RoleSegment({
+  value,
+  onChange,
+  isDark,
+  mutedColor,
+  inputBg,
+  borderColor,
+}: {
+  value: 'admin' | 'user'
+  onChange: (v: 'admin' | 'user') => void
+  isDark: boolean
+  mutedColor: string
+  inputBg: string
+  borderColor: string
+}) {
+  const userActive = value === 'user'
+  const adminActive = value === 'admin'
+
+  return (
+    <XStack
+      width="100%"
+      height={44}
+      borderRadius={radius.lg}
+      backgroundColor={inputBg}
+      borderWidth={1}
+      borderColor={borderColor}
+      padding={4}
+      gap={0}
+      position="relative"
+      overflow="hidden"
+    >
+      {/* 滑动指示器 */}
+      <div
+        style={{
+          position: 'absolute',
+          top: 4,
+          bottom: 4,
+          left: userActive ? 4 : '50%',
+          width: 'calc(50% - 4px)',
+          borderRadius: radius.md,
+          background: userActive
+            ? (isDark ? 'rgba(91,207,250,0.25)' : 'rgba(91,207,250,0.2)')
+            : (isDark ? 'rgba(245,171,185,0.25)' : 'rgba(245,171,185,0.2)'),
+          transition: 'left 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), background 0.25s ease',
+          pointerEvents: 'none',
+        }}
+      />
+      <Pressable
+        onPress={() => onChange('user')}
+        style={{
+          flex: 1,
+          borderRadius: radius.md,
+          alignItems: 'center',
+          justifyContent: 'center',
+          cursor: 'pointer',
+          zIndex: 1,
+        } as any}
+      >
+        <span
+          style={{
+            fontSize: 14,
+            fontWeight: userActive ? 600 : 500,
+            color: userActive ? (isDark ? '#7dd9fb' : '#5bcffa') : mutedColor,
+            transition: 'color 0.25s ease, font-weight 0.25s ease',
+          }}
+        >
+          普通用户
+        </span>
+      </Pressable>
+      <Pressable
+        onPress={() => onChange('admin')}
+        style={{
+          flex: 1,
+          borderRadius: radius.md,
+          alignItems: 'center',
+          justifyContent: 'center',
+          cursor: 'pointer',
+          zIndex: 1,
+        } as any}
+      >
+        <span
+          style={{
+            fontSize: 14,
+            fontWeight: adminActive ? 600 : 500,
+            color: adminActive ? (isDark ? '#f7bdc8' : '#e88595') : mutedColor,
+            transition: 'color 0.25s ease, font-weight 0.25s ease',
+          }}
+        >
+          管理员
+        </span>
+      </Pressable>
+    </XStack>
+  )
+}
 
 export default function UsersScreen() {
   const { isDark } = useAppTheme()
@@ -241,67 +337,6 @@ export default function UsersScreen() {
     )
   }
 
-  const RoleSegment = ({
-    value,
-    onChange,
-  }: {
-    value: 'admin' | 'user'
-    onChange: (v: 'admin' | 'user') => void
-  }) => (
-    <XStack
-      width="100%"
-      height={44}
-      borderRadius={radius.lg}
-      backgroundColor={inputBg}
-      borderWidth={1}
-      borderColor={borderColor}
-      padding={4}
-      gap={0}
-    >
-      <Pressable
-        onPress={() => onChange('user')}
-        style={{
-          flex: 1,
-          borderRadius: radius.md,
-          alignItems: 'center',
-          justifyContent: 'center',
-          cursor: 'pointer',
-          backgroundColor: value === 'user' ? (isDark ? 'rgba(91,207,250,0.25)' : 'rgba(91,207,250,0.2)') : 'transparent',
-          borderWidth: value === 'user' ? 0 : 0,
-          transition: 'background-color 0.2s ease',
-        } as any}
-      >
-        <Text
-          fontSize={14}
-          fontWeight={value === 'user' ? '600' : '500'}
-          color={value === 'user' ? (isDark ? '#7dd9fb' : '#5bcffa') : mutedColor}
-        >
-          普通用户
-        </Text>
-      </Pressable>
-      <Pressable
-        onPress={() => onChange('admin')}
-        style={{
-          flex: 1,
-          borderRadius: radius.md,
-          alignItems: 'center',
-          justifyContent: 'center',
-          cursor: 'pointer',
-          backgroundColor: value === 'admin' ? (isDark ? 'rgba(245,171,185,0.25)' : 'rgba(245,171,185,0.2)') : 'transparent',
-          transition: 'background-color 0.2s ease',
-        } as any}
-      >
-        <Text
-          fontSize={14}
-          fontWeight={value === 'admin' ? '600' : '500'}
-          color={value === 'admin' ? (isDark ? '#f7bdc8' : '#e88595') : mutedColor}
-        >
-          管理员
-        </Text>
-      </Pressable>
-    </XStack>
-  )
-
   const cardStyle = (staggerIndex: number) =>
     ({
       ...glassCard(isDark),
@@ -479,41 +514,23 @@ export default function UsersScreen() {
                 alignItems="flex-end"
                 flexDirection={isMobile ? 'column' : 'row'}
               >
-                <Input
+                <StyledInput
                   placeholder="新用户名"
-                  placeholderTextColor={mutedColor}
                   value={editUsername}
                   onChangeText={setEditUsername}
-                  backgroundColor={inputBg}
-                  borderWidth={1}
-                  borderColor={borderColor}
-                  borderRadius={radius.lg}
-                  color={textColor}
-                  fontSize={14}
-                  paddingHorizontal="$3"
                   paddingVertical={isMobile ? 14 : undefined}
                   width={isMobile ? '100%' : 200}
                   minWidth={isMobile ? undefined : 200}
-                  minHeight={44}
                   flexShrink={0}
                 />
-                <Input
+                <StyledInput
                   placeholder="新密码"
-                  placeholderTextColor={mutedColor}
                   value={editPassword}
                   onChangeText={setEditPassword}
                   secureTextEntry
-                  backgroundColor={inputBg}
-                  borderWidth={1}
-                  borderColor={borderColor}
-                  borderRadius={radius.lg}
-                  color={textColor}
-                  fontSize={14}
-                  paddingHorizontal="$3"
                   paddingVertical={isMobile ? 14 : undefined}
                   width={isMobile ? '100%' : 200}
                   minWidth={isMobile ? undefined : 200}
-                  minHeight={44}
                   flexShrink={0}
                 />
                 <Button
@@ -729,44 +746,26 @@ export default function UsersScreen() {
                 </Pressable>
               </XStack>
               <YStack gap="$3" width="100%">
-                <Input
+                <StyledInput
                   placeholder="用户名"
-                  placeholderTextColor={mutedColor}
                   value={createUsername}
                   onChangeText={setCreateUsername}
-                  backgroundColor={inputBg}
-                  borderWidth={1}
-                  borderColor={borderColor}
-                  borderRadius={radius.lg}
-                  color={textColor}
-                  fontSize={14}
-                  paddingHorizontal="$3"
                   paddingVertical={14}
                   width="100%"
-                  minHeight={44}
                 />
-                <Input
+                <StyledInput
                   placeholder="密码"
-                  placeholderTextColor={mutedColor}
                   value={createPassword}
                   onChangeText={setCreatePassword}
                   secureTextEntry
-                  backgroundColor={inputBg}
-                  borderWidth={1}
-                  borderColor={borderColor}
-                  borderRadius={radius.lg}
-                  color={textColor}
-                  fontSize={14}
-                  paddingHorizontal="$3"
                   paddingVertical={14}
                   width="100%"
-                  minHeight={44}
                 />
                 <YStack gap="$2">
                   <Text fontSize={13} color={mutedColor}>
                     角色
                   </Text>
-                  <RoleSegment value={createRole} onChange={setCreateRole} />
+                  <RoleSegment value={createRole} onChange={setCreateRole} isDark={isDark} mutedColor={mutedColor} inputBg={inputBg} borderColor={borderColor} />
                 </YStack>
                 <XStack alignItems="center" justifyContent="space-between">
                   <Text fontSize={13} color={mutedColor}>
@@ -876,44 +875,26 @@ export default function UsersScreen() {
                 </Pressable>
               </XStack>
               <YStack gap="$3" width="100%">
-                <Input
+                <StyledInput
                   placeholder="用户名"
-                  placeholderTextColor={mutedColor}
                   value={editRowUsername}
                   onChangeText={setEditRowUsername}
-                  backgroundColor={inputBg}
-                  borderWidth={1}
-                  borderColor={borderColor}
-                  borderRadius={radius.lg}
-                  color={textColor}
-                  fontSize={14}
-                  paddingHorizontal="$3"
                   paddingVertical={14}
                   width="100%"
-                  minHeight={44}
                 />
-                <Input
+                <StyledInput
                   placeholder="新密码（不填则不修改）"
-                  placeholderTextColor={mutedColor}
                   value={editRowPassword}
                   onChangeText={setEditRowPassword}
                   secureTextEntry
-                  backgroundColor={inputBg}
-                  borderWidth={1}
-                  borderColor={borderColor}
-                  borderRadius={radius.lg}
-                  color={textColor}
-                  fontSize={14}
-                  paddingHorizontal="$3"
                   paddingVertical={14}
                   width="100%"
-                  minHeight={44}
                 />
                 <YStack gap="$2">
                   <Text fontSize={13} color={mutedColor}>
                     角色
                   </Text>
-                  <RoleSegment value={editRowRole} onChange={setEditRowRole} />
+                  <RoleSegment value={editRowRole} onChange={setEditRowRole} isDark={isDark} mutedColor={mutedColor} inputBg={inputBg} borderColor={borderColor} />
                 </YStack>
                 <XStack alignItems="center" justifyContent="space-between">
                   <Text fontSize={13} color={mutedColor}>

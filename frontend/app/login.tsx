@@ -6,6 +6,7 @@ import { Cloud, Eye, EyeOff } from 'lucide-react-native'
 import { radius, gradients, darkGradients, glassCard } from '@/constants/DesignTokens'
 import { useAppTheme } from '@/contexts/ThemeContext'
 import { useAuth } from '@/contexts/AuthContext'
+import { StyledInput, useWebInputProps } from '@/components/shared/StyledInput'
 
 export default function LoginScreen() {
   const { isDark } = useAppTheme()
@@ -24,10 +25,15 @@ export default function LoginScreen() {
     }
   }, [loading, token, router])
 
-  const textColor = isDark ? '#f2f2f2' : '#333333'
-  const mutedColor = isDark ? '#a1a1a1' : '#666666'
-  const borderColor = isDark ? '#282828' : '#e5e5e5'
-  const inputBg = isDark ? '#1a1a1a' : '#f5f5f5'
+  const {
+    getInputProps,
+    getPasswordWrapperProps,
+    getPasswordInputProps,
+    textColor,
+    mutedColor,
+    borderColor,
+    inputBg,
+  } = useWebInputProps()
 
   const meshBg = isDark
     ? [
@@ -165,32 +171,19 @@ export default function LoginScreen() {
                       handleSubmit()
                     }
                   }}
+                  {...getInputProps('username', !!error && !username.trim())}
+                />
+                <div
                   style={{
-                    boxSizing: 'border-box',
+                    ...getPasswordWrapperProps('password', !!error && !password).style,
+                    display: 'flex',
+                    alignItems: 'center',
                     width: '100%',
                     height: 44,
-                    paddingLeft: 16,
-                    paddingRight: 16,
-                    paddingTop: 0,
-                    paddingBottom: 0,
-                    fontSize: 15,
-                    lineHeight: 20,
-                    color: textColor,
-                    background: inputBg,
-                    border: `1px solid ${error && !username.trim() ? '#ef4444' : borderColor}`,
-                    borderRadius: radius.lg,
-                    outline: 'none',
+                    overflow: 'hidden',
                   }}
-                />
-                <XStack
-                  position="relative"
-                  alignItems="center"
-                  width="100%"
-                  height={44}
-                  borderWidth={1}
-                  borderColor={error && !password ? '#ef4444' : borderColor}
-                  borderRadius={radius.lg}
-                  backgroundColor={inputBg}
+                  onMouseEnter={getPasswordWrapperProps('password').onMouseEnter}
+                  onMouseLeave={getPasswordWrapperProps('password').onMouseLeave}
                 >
                   <input
                     type={showPassword ? 'text' : 'password'}
@@ -207,23 +200,7 @@ export default function LoginScreen() {
                         handleSubmit()
                       }
                     }}
-                    style={{
-                      boxSizing: 'border-box',
-                      flex: 1,
-                      width: '100%',
-                      minWidth: 0,
-                      height: '100%',
-                      paddingLeft: 16,
-                      paddingRight: 16,
-                      paddingTop: 0,
-                      paddingBottom: 0,
-                      fontSize: 15,
-                      lineHeight: 20,
-                      color: textColor,
-                      background: 'transparent',
-                      border: 'none',
-                      outline: 'none',
-                    }}
+                    {...getPasswordInputProps('password')}
                   />
                   <Pressable
                     onPress={() => setShowPassword((v) => !v)}
@@ -241,7 +218,7 @@ export default function LoginScreen() {
                       <Eye size={20} color={mutedColor} />
                     )}
                   </Pressable>
-                </XStack>
+                </div>
                 {error ? (
                   <XStack alignItems="center" gap="$2">
                     <Text color="#ef4444" fontSize={14} flex={1}>
@@ -276,22 +253,15 @@ export default function LoginScreen() {
             </form>
           ) : (
             <YStack width="100%" gap="$3">
-              <Input
+              <StyledInput
                 placeholder="用户名"
-                placeholderTextColor={mutedColor as any}
+                hasError={!!error && !username.trim()}
                 value={username}
                 onChangeText={(v) => {
                   setUsername(v)
                   clearError()
                 }}
-                backgroundColor={inputBg}
-                borderWidth={1}
-                borderColor={error && !username.trim() ? '#ef4444' : borderColor}
-                borderRadius={radius.lg}
-                color={textColor}
                 fontSize={15}
-                paddingHorizontal="$4"
-                paddingVertical="$3"
                 onSubmitEditing={handleSubmit}
               />
               <XStack
@@ -300,7 +270,7 @@ export default function LoginScreen() {
                 width="100%"
                 borderWidth={1}
                 borderColor={error && !password ? '#ef4444' : borderColor}
-                borderRadius={radius.lg}
+                borderRadius={radius.xl}
                 backgroundColor={inputBg}
               >
                 <Input

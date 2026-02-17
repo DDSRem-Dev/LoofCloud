@@ -1,9 +1,10 @@
 import React, { useState } from 'react'
-import { YStack, XStack, Text, Card, H2, Button, Input, Paragraph } from 'tamagui'
+import { YStack, XStack, Text, Card, H2, Button, Paragraph } from 'tamagui'
 import { ScrollView, useWindowDimensions } from 'react-native'
 import { Search, Upload, File, Image, FileText, Archive, MoreHorizontal, FolderOpen } from 'lucide-react-native'
 import { radius, gradients, darkGradients, glassCard } from '@/constants/DesignTokens'
 import { useAppTheme } from '@/contexts/ThemeContext'
+import { StyledInput } from '@/components/shared/StyledInput'
 
 interface FileItem {
   name: string
@@ -50,7 +51,6 @@ export default function FilesScreen() {
   const textColor = isDark ? '#f2f2f2' : '#333333'
   const mutedColor = isDark ? '#a1a1a1' : '#666666'
   const borderColor = isDark ? '#282828' : '#e5e5e5'
-  const inputBg = isDark ? '#1a1a1a' : '#f5f5f5'
 
   const filteredFiles = mockFiles.filter((f) =>
     f.name.toLowerCase().includes(searchQuery.toLowerCase())
@@ -108,19 +108,11 @@ export default function FilesScreen() {
         >
           <XStack alignItems="center" gap="$3">
             <Search size={18} color={mutedColor} />
-            <Input
+            <StyledInput
               flex={1}
               placeholder="搜索文件..."
-              placeholderTextColor={mutedColor}
               value={searchQuery}
               onChangeText={setSearchQuery}
-              backgroundColor={inputBg}
-              borderWidth={1}
-              borderColor={borderColor}
-              borderRadius={radius.lg}
-              color={textColor}
-              fontSize={14}
-              paddingHorizontal="$3"
             />
           </XStack>
         </Card>

@@ -1,9 +1,10 @@
 import React, { useState } from 'react'
-import { YStack, XStack, Text, Card, H2, H4, Paragraph, Input, Button } from 'tamagui'
+import { YStack, XStack, Text, Card, H2, H4, Paragraph, Button } from 'tamagui'
 import { ScrollView, useWindowDimensions, Pressable, View } from 'react-native'
 import { Globe, HardDrive, Shield, Bell } from 'lucide-react-native'
 import { radius, gradients, darkGradients, glassCard } from '@/constants/DesignTokens'
 import { useAppTheme } from '@/contexts/ThemeContext'
+import { StyledInput } from '@/components/shared/StyledInput'
 
 interface SettingField {
   label: string
@@ -109,7 +110,6 @@ export default function SettingsScreen() {
   const textColor = isDark ? '#f2f2f2' : '#333333'
   const mutedColor = isDark ? '#a1a1a1' : '#666666'
   const borderColor = isDark ? '#282828' : '#e5e5e5'
-  const inputBg = isDark ? '#1a1a1a' : '#f5f5f5'
 
   return (
     <ScrollView style={{ flex: 1 }} contentContainerStyle={{ padding: isMobile ? 16 : 32 }}>
@@ -205,18 +205,10 @@ export default function SettingsScreen() {
                       {field.type === 'toggle' ? (
                         <SettingToggle defaultChecked={field.enabled} isDark={isDark} />
                       ) : (
-                        <Input
+                        <StyledInput
                           width={isMobile ? '100%' : 240}
                           placeholder={field.label}
-                          placeholderTextColor={mutedColor}
                           defaultValue={field.value}
-                          backgroundColor={inputBg}
-                          borderWidth={1}
-                          borderColor={borderColor}
-                          borderRadius={radius.lg}
-                          color={textColor}
-                          fontSize={14}
-                          paddingHorizontal="$3"
                         />
                       )}
                     </XStack>

@@ -28,6 +28,7 @@ export function MobileHeader({ onMenuPress }: MobileHeaderProps) {
         top: 0,
         zIndex: 50,
         transition: 'background-color 0.35s ease',
+        paddingTop: 'var(--safe-top)',
       }}
     >
       <Button

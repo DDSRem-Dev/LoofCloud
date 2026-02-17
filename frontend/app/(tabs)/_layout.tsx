@@ -58,7 +58,7 @@ export default function TabLayout() {
       ].join(', ')
 
   return (
-    <XStack flex={1} height="100vh">
+    <XStack flex={1} style={{ height: '100dvh' } as any} height="100vh">
       <Sidebar
         mobileOpen={drawerOpen}
         onClose={() => setDrawerOpen(false)}
@@ -68,9 +68,10 @@ export default function TabLayout() {
         // @ts-ignore web-only style
         style={{
           background: meshBg,
-          minHeight: '100vh',
+          minHeight: '100dvh',
           overflowY: 'auto',
           position: 'relative',
+          paddingBottom: 'var(--safe-bottom)',
         }}
       >
         {/* Aurora 漂浮光斑 — 纯色+blur 比 radial-gradient 更柔和自然 */}
@@ -87,7 +88,7 @@ export default function TabLayout() {
           }}
         >
           {/* 天蓝光斑 - 右上角 */}
-          <div style={{
+          <div className="aurora-blob" style={{
             position: 'absolute',
             top: '-15%',
             right: '-10%',
@@ -98,9 +99,10 @@ export default function TabLayout() {
             filter: `blur(${isMobile ? 80 : 120}px)`,
             WebkitFilter: `blur(${isMobile ? 80 : 120}px)`,
             animation: 'auroraFloat1 20s ease-in-out infinite',
+            willChange: 'transform, opacity',
           } as any} />
           {/* 樱花粉光斑 - 左下角 */}
-          <div style={{
+          <div className="aurora-blob" style={{
             position: 'absolute',
             bottom: '-15%',
             left: '-8%',
@@ -111,9 +113,10 @@ export default function TabLayout() {
             filter: `blur(${isMobile ? 70 : 100}px)`,
             WebkitFilter: `blur(${isMobile ? 70 : 100}px)`,
             animation: 'auroraFloat2 25s ease-in-out infinite',
+            willChange: 'transform, opacity',
           } as any} />
           {/* 蓝紫光斑 - 中部 */}
-          <div style={{
+          <div className="aurora-blob" style={{
             position: 'absolute',
             top: '35%',
             left: '15%',
@@ -124,6 +127,7 @@ export default function TabLayout() {
             filter: `blur(${isMobile ? 60 : 90}px)`,
             WebkitFilter: `blur(${isMobile ? 60 : 90}px)`,
             animation: 'auroraFloat3 18s ease-in-out infinite',
+            willChange: 'transform, opacity',
           } as any} />
 
           {/* 脉冲光圈 — 周期性扩散消散 */}
@@ -131,7 +135,7 @@ export default function TabLayout() {
             { top: '25%', left: '75%', color: '#5bcffa', delay: '0s' },
             { top: '65%', left: '20%', color: '#f5abb9', delay: '4s' },
           ].map((r, i) => (
-            <div key={`ring-${i}`} style={{
+            <div key={`ring-${i}`} className="aurora-ring" style={{
               position: 'absolute',
               top: r.top,
               left: r.left,

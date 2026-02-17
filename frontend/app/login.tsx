@@ -77,12 +77,14 @@ export default function LoginScreen() {
   return (
     <div
       style={{
-        minHeight: '100vh',
+        minHeight: '100dvh',
         background: meshBg,
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
         padding: 24,
+        paddingTop: 'calc(24px + var(--safe-top, 0px))',
+        paddingBottom: 'calc(24px + var(--safe-bottom, 0px))',
         position: 'relative',
         overflow: 'hidden',
       }}

@@ -10,7 +10,7 @@ export default function Root({ children }: { children: React.ReactNode }) {
       <head>
         <meta charSet="utf-8" />
         <meta httpEquiv="X-UA-Compatible" content="IE=edge" />
-        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no, viewport-fit=cover" />
 
         {/* PWA Manifest - Expo 会自动生成，路径可能因环境而异 */}
         <link rel="manifest" href="/manifest.json" />
@@ -22,18 +22,22 @@ export default function Root({ children }: { children: React.ReactNode }) {
 
         {/* iOS Safari Meta Tags */}
         <meta name="apple-mobile-web-app-capable" content="yes" />
-        <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+        <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
         <meta name="apple-mobile-web-app-title" content="LoofCloud" />
         <link rel="apple-touch-icon" href="/assets/images/icon.png" />
 
-        {/* iOS Safari 状态栏样式 - 白色背景，黑色文字 */}
+        {/* iOS Safari safe area CSS variables + dvh support */}
         <style dangerouslySetInnerHTML={{
           __html: `
-          /* iOS Safari 状态栏样式 */
-          @supports (-webkit-touch-callout: none) {
-            body {
-              padding-top: env(safe-area-inset-top);
-            }
+          :root {
+            --safe-top: env(safe-area-inset-top, 0px);
+            --safe-bottom: env(safe-area-inset-bottom, 0px);
+            --safe-left: env(safe-area-inset-left, 0px);
+            --safe-right: env(safe-area-inset-right, 0px);
+          }
+          html, body {
+            height: 100%;
+            -webkit-overflow-scrolling: touch;
           }
         ` }} />
 
@@ -115,6 +119,13 @@ body {
 .stagger-item {
   animation: staggerFadeUp 0.56s cubic-bezier(0.16, 1, 0.3, 1) both;
   animation-delay: var(--stagger-delay, 0ms);
+}
+
+/* Reduced motion: disable aurora animations */
+@media (prefers-reduced-motion: reduce) {
+  .aurora-blob, .aurora-ring {
+    animation: none !important;
+  }
 }
 
 /* Aurora 极光光斑 — 漂浮 + 缩放 + 呼吸 */

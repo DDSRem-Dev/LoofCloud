@@ -88,6 +88,8 @@ export function Sidebar({ mobileOpen, onClose }: SidebarProps) {
       width={SIDEBAR_WIDTH}
       minWidth={SIDEBAR_WIDTH}
       maxWidth={SIDEBAR_WIDTH}
+      // @ts-ignore web-only dvh
+      style={{ height: '100dvh' }}
       height="100vh"
       backgroundColor={isDark ? '#1a1d23' : '#ffffff'}
       borderRightWidth={isMobile ? 0 : 1}
@@ -99,6 +101,8 @@ export function Sidebar({ mobileOpen, onClose }: SidebarProps) {
         <XStack
           paddingHorizontal="$5"
           paddingVertical="$5"
+          // @ts-ignore web-only safe area
+          style={isMobile ? { paddingTop: 'max(var(--safe-top), 20px)' } : undefined}
           alignItems="center"
           justifyContent="space-between"
         >
@@ -187,7 +191,10 @@ export function Sidebar({ mobileOpen, onClose }: SidebarProps) {
       </YStack>
 
       {/* Bottom: Theme Toggle + Logout */}
-      <YStack paddingHorizontal="$3" paddingBottom="$4" gap="$1">
+      <YStack paddingHorizontal="$3" paddingBottom="$4" gap="$1"
+        // @ts-ignore web-only safe area
+        style={{ paddingBottom: 'calc(16px + var(--safe-bottom))' }}
+      >
         <Button
           unstyled
           borderRadius={10}
@@ -244,6 +251,7 @@ export function Sidebar({ mobileOpen, onClose }: SidebarProps) {
         position="sticky"
         top={0}
         height="100vh"
+        style={{ height: '100dvh' } as any}
       >
         {sidebarContent}
       </YStack>

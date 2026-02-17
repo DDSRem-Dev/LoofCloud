@@ -63,8 +63,8 @@ function ToastPortalInner({ toasts }: { toasts: ToastItem[] }) {
       <div
         style={{
           position: 'fixed',
-          top: 20,
-          right: 20,
+          top: 'calc(20px + var(--safe-top, 0px))',
+          right: 'calc(20px + var(--safe-right, 0px))',
           zIndex: 99999,
           display: 'flex',
           flexDirection: 'column',

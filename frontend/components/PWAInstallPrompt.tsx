@@ -69,9 +69,10 @@ export function PWAInstallPrompt() {
       zIndex={1000}
       padding="$4"
       pointerEvents="box-none"
+      // @ts-ignore web-only
       style={{
-        // 添加背景遮罩动画
         animation: 'fadeInUp 0.3s ease-out',
+        paddingBottom: 'calc(16px + var(--safe-bottom, 0px))',
       }}
     >
       <Card

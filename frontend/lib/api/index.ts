@@ -16,6 +16,9 @@ export {
   apiUpdateUser,
 } from './user'
 
+export type { AppConfig, BaseConfig } from './config'
+export { apiGetConfig, apiUpdateConfig } from './config'
+
 export type {
   P115Status,
   P115QrcodeToken,

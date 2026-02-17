@@ -2,10 +2,11 @@ import React, { useCallback, useEffect, useRef, useState } from 'react'
 import ReactDOM from 'react-dom'
 import { YStack, XStack, Text, Card, H2, H4, Paragraph, Button } from 'tamagui'
 import { ScrollView, useWindowDimensions, Pressable, View, Image } from 'react-native'
-import { Settings, Key, LogOut, QrCode, ChevronDown, Check } from 'lucide-react-native'
+import { Settings, Key, LogOut, QrCode, ChevronDown, Check, FileText, CheckCircle, AlertCircle, HelpCircle, Loader2 } from 'lucide-react-native'
 import { radius, gradients, darkGradients, glassCard } from '@/constants/DesignTokens'
 import { useAppTheme } from '@/contexts/ThemeContext'
 import { useAuth } from '@/contexts/AuthContext'
+import { StyledInput } from '@/components/shared/StyledInput'
 import {
   apiP115Status,
   apiP115QrcodeToken,
@@ -13,6 +14,8 @@ import {
   apiP115QrcodePoll,
   apiP115QrcodeConfirm,
   apiP115Logout,
+  apiGetConfig,
+  apiUpdateConfig,
   type P115Status,
 } from '@/lib/api'
 
@@ -292,9 +295,9 @@ function P115LoginCard({ isDark, isMobile }: { isDark: boolean; isMobile: boolea
 
   const qrStatusColor =
     qrStatus === 'scanned' ? warningColor :
-    qrStatus === 'confirmed' ? successColor :
-    qrStatus === 'expired' || qrStatus === 'error' ? '#ef4444' :
-    mutedColor
+      qrStatus === 'confirmed' ? successColor :
+        qrStatus === 'expired' || qrStatus === 'error' ? '#ef4444' :
+          mutedColor
 
   if (loading) {
     return (
@@ -502,7 +505,343 @@ function P115LoginCard({ isDark, isMobile }: { isDark: boolean; isMobile: boolea
   )
 }
 
-type SettingsTab = 'account'
+/** 基础配置卡片（STRM 基础地址等） */
+function BaseConfigCard({ isDark, isMobile }: { isDark: boolean; isMobile: boolean }) {
+  const { token } = useAuth()
+
+  const textColor = isDark ? '#f2f2f2' : '#333333'
+  const mutedColor = isDark ? '#a1a1a1' : '#666666'
+  const primaryColor = isDark ? '#7dd9fb' : '#5bcffa'
+  const inputBg = isDark ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.03)'
+  const borderColor = isDark ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.08)'
+
+  const [strmBaseUrl, setStrmBaseUrl] = useState('')
+  const [loading, setLoading] = useState(true)
+  const [saving, setSaving] = useState(false)
+  const [message, setMessage] = useState<{ type: 'ok' | 'err'; text: string } | null>(null)
+  const [showSuccessToast, setShowSuccessToast] = useState(false)
+  const [toastExiting, setToastExiting] = useState(false)
+  const [helpOpen, setHelpOpen] = useState(false)
+  const [helpExiting, setHelpExiting] = useState(false)
+  const [helpPopoverPos, setHelpPopoverPos] = useState({ top: 0, left: 0 })
+  const [helpHover, setHelpHover] = useState(false)
+  const helpTriggerRef = useRef<View>(null)
+
+  const closeHelp = useCallback(() => {
+    setHelpExiting(true)
+  }, [])
+
+  useEffect(() => {
+    if (!helpExiting) return
+    const t = setTimeout(() => {
+      setHelpOpen(false)
+      setHelpExiting(false)
+    }, 220)
+    return () => clearTimeout(t)
+  }, [helpExiting])
+
+  const loadConfig = useCallback(async () => {
+    if (!token) return
+    setLoading(true)
+    try {
+      const cfg = await apiGetConfig(token)
+      setStrmBaseUrl(cfg.base.strm_base_url ?? '')
+    } catch {
+      setMessage({ type: 'err', text: '加载配置失败' })
+    } finally {
+      setLoading(false)
+    }
+  }, [token])
+
+  useEffect(() => {
+    loadConfig()
+  }, [loadConfig])
+
+  useEffect(() => {
+    if (!helpOpen) return
+    const el = helpTriggerRef.current as any
+    const dom = el instanceof HTMLElement ? el : el?._nativeTag ?? el?.getNode?.()
+    if (dom?.getBoundingClientRect) {
+      const rect = dom.getBoundingClientRect()
+      setHelpPopoverPos({ top: rect.bottom + 6, left: rect.left })
+    }
+  }, [helpOpen])
+
+  const handleSave = async () => {
+    if (!token) return
+    const startedAt = Date.now()
+    setSaving(true)
+    setMessage(null)
+    setShowSuccessToast(false)
+    try {
+      await apiUpdateConfig(token, { base: { strm_base_url: strmBaseUrl || null } })
+      setShowSuccessToast(true)
+    } catch (e: any) {
+      setMessage({ type: 'err', text: e?.message || '保存失败' })
+    } finally {
+      const elapsed = Date.now() - startedAt
+      const minShowing = 520
+      const delay = Math.max(0, minShowing - elapsed)
+      setTimeout(() => setSaving(false), delay)
+    }
+  }
+
+  useEffect(() => {
+    if (!showSuccessToast) return
+    const hideAt = 2500
+    const exitDuration = 280
+    const t1 = setTimeout(() => {
+      setToastExiting(true)
+    }, hideAt)
+    const t2 = setTimeout(() => {
+      setShowSuccessToast(false)
+      setToastExiting(false)
+    }, hideAt + exitDuration)
+    return () => {
+      clearTimeout(t1)
+      clearTimeout(t2)
+    }
+  }, [showSuccessToast])
+
+  if (loading) {
+    return (
+      <Card
+        borderRadius={radius.xl}
+        padding={isMobile ? '$4' : '$5'}
+        className="stagger-item"
+        style={{ ...glassCard(isDark), '--stagger-delay': '160ms' } as any}
+      >
+        <Text color={mutedColor}>加载中…</Text>
+      </Card>
+    )
+  }
+
+  return (
+    <Card
+      borderRadius={radius.xl}
+      padding={isMobile ? '$4' : '$5'}
+      className="stagger-item"
+      style={{ ...glassCard(isDark), '--stagger-delay': '160ms' } as any}
+    >
+      <YStack gap="$4">
+        <XStack alignItems="center" gap="$3">
+          <YStack
+            backgroundColor={isDark ? 'rgba(91,207,250,0.15)' : 'rgba(91,207,250,0.1)'}
+            borderRadius={radius.lg}
+            padding="$2"
+          >
+            <FileText size={20} color={primaryColor} />
+          </YStack>
+          <H4 color={textColor} fontWeight="600">
+            基础配置
+          </H4>
+        </XStack>
+
+        <YStack gap="$2">
+          <XStack alignItems="center" gap="$2">
+            <Text fontSize={14} color={textColor} fontWeight="500">
+              STRM 文件基础地址
+            </Text>
+            <View
+              ref={helpTriggerRef}
+              style={{ alignItems: 'center', justifyContent: 'center' }}
+              // @ts-expect-error web hover
+              onMouseEnter={() => setHelpHover(true)}
+              onMouseLeave={() => setHelpHover(false)}
+            >
+              <Pressable
+                onPress={() => setHelpOpen((v) => !v)}
+                style={{
+                  padding: 4,
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  cursor: 'pointer',
+                } as any}
+              >
+                <HelpCircle size={16} color={helpHover ? primaryColor : mutedColor} />
+              </Pressable>
+            </View>
+          </XStack>
+          {helpOpen && typeof document !== 'undefined' && ReactDOM.createPortal(
+            <>
+              <style>{`
+                @keyframes settings-help-popover-in {
+                  from { opacity: 0; transform: translateY(-6px) scale(0.98); }
+                  to { opacity: 1; transform: translateY(0) scale(1); }
+                }
+                @keyframes settings-help-popover-out {
+                  from { opacity: 1; transform: translateY(0) scale(1); }
+                  to { opacity: 0; transform: translateY(-6px) scale(0.98); }
+                }
+                .settings-help-popover { animation: settings-help-popover-in 0.22s cubic-bezier(0.21, 0.47, 0.32, 1); }
+                .settings-help-popover.settings-help-popover-out { animation: settings-help-popover-out 0.2s cubic-bezier(0.4, 0, 1, 1) forwards; }
+              `}</style>
+              <div
+                role="presentation"
+                style={{ position: 'fixed', inset: 0, zIndex: 99998 }}
+                onMouseDown={closeHelp}
+              />
+              <div
+                className={`settings-help-popover${helpExiting ? ' settings-help-popover-out' : ''}`}
+                onMouseDown={(e) => e.stopPropagation()}
+                style={{
+                  position: 'fixed',
+                  top: helpPopoverPos.top,
+                  left: helpPopoverPos.left,
+                  zIndex: 99999,
+                  maxWidth: 320,
+                  padding: '14px 16px',
+                  paddingLeft: 18,
+                  borderRadius: radius.xl,
+                  background: isDark ? '#1c1c1e' : '#ffffff',
+                  border: `1px solid ${primaryColor}`,
+                  boxShadow: isDark ? '0 8px 24px rgba(0,0,0,0.3)' : '0 8px 24px rgba(0,0,0,0.08)',
+                  fontSize: 13,
+                  color: mutedColor,
+                  lineHeight: 1.55,
+                }}
+              >
+                用于生成 STRM 文件时的基础 URL，留空则不设置。
+              </div>
+            </>,
+            document.body,
+          )}
+          <StyledInput
+            placeholder="例如 http://127.0.0.1:8000"
+            value={strmBaseUrl}
+            onChangeText={setStrmBaseUrl}
+            width="100%"
+            minWidth={isMobile ? undefined : 320}
+            paddingVertical={isMobile ? 14 : undefined}
+          />
+        </YStack>
+
+        {message?.type === 'err' && (
+          <XStack
+            alignItems="center"
+            gap="$2"
+            paddingVertical="$2"
+            paddingHorizontal="$3"
+            borderRadius={radius.lg}
+            backgroundColor={isDark ? 'rgba(239,68,68,0.15)' : 'rgba(239,68,68,0.1)'}
+            borderWidth={1}
+            borderColor={isDark ? 'rgba(239,68,68,0.35)' : 'rgba(239,68,68,0.25)'}
+            alignSelf="flex-start"
+            style={{ transition: 'opacity 0.2s ease' } as any}
+          >
+            <AlertCircle size={18} color="#ef4444" />
+            <Text fontSize={14} fontWeight="500" color="#ef4444">
+              {message.text}
+            </Text>
+          </XStack>
+        )}
+
+        {showSuccessToast && typeof document !== 'undefined' && ReactDOM.createPortal(
+          <>
+            <style>{`
+              @keyframes settings-toast-in {
+                from { opacity: 0; transform: translateX(24px); }
+                to { opacity: 1; transform: translateX(0); }
+              }
+              @keyframes settings-toast-out {
+                from { opacity: 1; transform: translateX(0); }
+                to { opacity: 0; transform: translateX(24px); }
+              }
+              .settings-success-toast { animation: settings-toast-in 0.32s cubic-bezier(0.21, 0.47, 0.32, 1); }
+              .settings-success-toast.settings-toast-exit { animation: settings-toast-out 0.28s cubic-bezier(0.4, 0, 1, 1) forwards; }
+            `}</style>
+            <div
+              className={`settings-success-toast${toastExiting ? ' settings-toast-exit' : ''}`}
+              style={{
+                position: 'fixed',
+                top: 20,
+                right: 20,
+                zIndex: 99999,
+                display: 'flex',
+                alignItems: 'center',
+                gap: 12,
+                padding: '14px 20px',
+                borderRadius: radius.xl,
+                background: isDark
+                  ? 'linear-gradient(135deg, rgba(30,30,30,0.72) 0%, rgba(45,45,45,0.68) 100%)'
+                  : 'linear-gradient(135deg, rgba(255,255,255,0.72) 0%, rgba(248,252,248,0.68) 100%)',
+                backdropFilter: 'blur(20px) saturate(180%)',
+                WebkitBackdropFilter: 'blur(20px) saturate(180%)',
+                border: `1px solid ${isDark ? 'rgba(255,255,255,0.08)' : 'rgba(255,255,255,0.65)'}`,
+                boxShadow: isDark
+                  ? '0 12px 40px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.06)'
+                  : '0 12px 40px rgba(0,0,0,0.1), inset 0 1px 0 rgba(255,255,255,0.8)',
+              }}
+            >
+              <div style={{
+                width: 32,
+                height: 32,
+                borderRadius: '50%',
+                background: 'rgba(34,197,94,0.15)',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                flexShrink: 0,
+              }}>
+                <CheckCircle size={18} color="#22c55e" />
+              </div>
+              <span style={{ fontSize: 15, fontWeight: 600, color: '#22c55e', letterSpacing: '0.02em' }}>
+                保存成功
+              </span>
+            </div>
+          </>,
+          document.body,
+        )}
+
+        <Button
+          unstyled
+          borderWidth={0}
+          borderRadius={999}
+          paddingHorizontal={24}
+          height={44}
+          alignSelf="flex-start"
+          alignItems="center"
+          justifyContent="center"
+          cursor={saving ? 'not-allowed' : 'pointer'}
+          opacity={saving ? 0.85 : 1}
+          style={{
+            background: isDark ? darkGradients.shokaButton : gradients.shokaButton,
+            boxShadow: '0 4px 15px rgba(91, 207, 250, 0.35)',
+            transition: 'opacity 0.2s ease',
+          } as any}
+          onPress={handleSave}
+          disabled={saving}
+        >
+          <XStack alignItems="center" gap="$2">
+            {saving && (
+              <>
+                {typeof document !== 'undefined' && (
+                  <style>{`
+                    @keyframes settings-save-spin { to { transform: rotate(360deg); } }
+                  `}</style>
+                )}
+                <View
+                  style={
+                    typeof document !== 'undefined'
+                      ? ({ animation: 'settings-save-spin 0.7s linear infinite' } as any)
+                      : undefined
+                  }
+                >
+                  <Loader2 size={16} color="#ffffff" />
+                </View>
+              </>
+            )}
+            <Text color="#ffffff" fontWeight="600" fontSize={14}>
+              保存
+            </Text>
+          </XStack>
+        </Button>
+      </YStack>
+    </Card>
+  )
+}
+
+type SettingsTab = 'account' | 'base'
 
 export default function SettingsScreen() {
   const { isDark } = useAppTheme()
@@ -566,11 +905,45 @@ export default function SettingsScreen() {
               账户配置
             </Text>
           </Pressable>
+          <Pressable
+            onPress={() => setActiveTab('base')}
+            style={{
+              flex: isMobile ? 1 : undefined,
+              minWidth: isMobile ? 0 : undefined,
+              minHeight: 44,
+              paddingVertical: isMobile ? 12 : 14,
+              paddingHorizontal: isMobile ? 12 : 20,
+              borderRadius: radius.lg,
+              flexDirection: 'row',
+              alignItems: 'center',
+              justifyContent: 'center',
+              gap: 8,
+              backgroundColor: activeTab === 'base' ? (isDark ? 'rgba(91,207,250,0.2)' : 'rgba(91,207,250,0.15)') : 'transparent',
+              borderWidth: 1,
+              borderColor: activeTab === 'base' ? (isDark ? 'rgba(91,207,250,0.4)' : 'rgba(91,207,250,0.35)') : 'transparent',
+              transition: 'background-color 0.2s ease, border-color 0.2s ease',
+              cursor: 'pointer',
+            } as any}
+          >
+            <FileText size={18} color={activeTab === 'base' ? (isDark ? '#7dd9fb' : '#5bcffa') : mutedColor} />
+            <Text
+              color={activeTab === 'base' ? textColor : mutedColor}
+              fontWeight={activeTab === 'base' ? '600' : '500'}
+              fontSize={isMobile ? 13 : 14}
+            >
+              基础配置
+            </Text>
+          </Pressable>
         </XStack>
 
         {/* 账户配置 tab */}
         {activeTab === 'account' && (
           <P115LoginCard isDark={isDark} isMobile={isMobile} />
+        )}
+
+        {/* 基础配置 tab */}
+        {activeTab === 'base' && (
+          <BaseConfigCard isDark={isDark} isMobile={isMobile} />
         )}
       </YStack>
     </ScrollView>

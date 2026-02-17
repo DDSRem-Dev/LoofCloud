@@ -18,6 +18,66 @@ export interface P115PollResult {
   msg: string
 }
 
+/** 115 容量项（size + size_format） */
+export interface P115SizeItem {
+  size: number
+  size_format: string
+}
+
+/** 115 空间信息 */
+export interface P115SpaceInfo {
+  all_total?: P115SizeItem | null
+  all_remain?: P115SizeItem | null
+  all_use?: P115SizeItem | null
+}
+
+/** 115 存储信息（fs_index_info data） */
+export interface P115StorageInfo {
+  space_info?: P115SpaceInfo | null
+}
+
+/** 115 VIP 信息 */
+export interface P115VipInfo {
+  is_vip?: boolean
+  is_forever?: boolean
+  expire?: string
+  expire_str?: string
+}
+
+/** 115 头像 */
+export interface P115FaceInfo {
+  face_l?: string
+  face_m?: string
+  face_s?: string
+}
+
+/** 115 用户信息（user_my_info data） */
+export interface P115UserInfo {
+  uid: number
+  uname?: string
+  vip?: P115VipInfo | null
+  face?: P115FaceInfo | null
+}
+
+/** 115 仪表盘数据 */
+export interface P115Dashboard {
+  logged_in: boolean
+  user_info: P115UserInfo | null
+  storage_info: P115StorageInfo | null
+}
+
+/**
+ * 获取 115 仪表盘数据（用户信息 + 存储信息），未登入时 user_info、storage_info 为 null
+ */
+export async function apiP115Dashboard(token: string): Promise<P115Dashboard> {
+  const res = await authFetch(token, '/api/v1/p115/dashboard')
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({ detail: res.statusText }))
+    throw new Error(err.detail || '获取仪表盘失败')
+  }
+  return res.json()
+}
+
 /**
  * 获取 115 登入状态
  */

@@ -16,8 +16,20 @@ export {
   apiUpdateUser,
 } from './user'
 
-export type { P115Status, P115QrcodeToken, P115PollResult } from './p115'
+export type {
+  P115Status,
+  P115QrcodeToken,
+  P115PollResult,
+  P115Dashboard,
+  P115UserInfo,
+  P115StorageInfo,
+  P115SpaceInfo,
+  P115SizeItem,
+  P115VipInfo,
+  P115FaceInfo,
+} from './p115'
 export {
+  apiP115Dashboard,
   apiP115Status,
   apiP115QrcodeToken,
   apiP115QrcodeImage,

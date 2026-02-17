@@ -90,8 +90,9 @@ body {
 
 /* 交错入场动画 */
 @keyframes staggerFadeUp {
-  from { opacity: 0; transform: translateY(12px); }
-  to { opacity: 1; transform: translateY(0); }
+  from { opacity: 0; transform: translateY(24px) scale(0.97); filter: blur(4px); }
+  60%  { filter: blur(0px); }
+  to   { opacity: 1; transform: translateY(0) scale(1); filter: blur(0px); }
 }
 
 /* View Transition — 纯净交叉溶解，旧画面静止，新画面淡入覆盖 */
@@ -112,7 +113,7 @@ body {
 
 /* 交错入场 */
 .stagger-item {
-  animation: staggerFadeUp 0.5s cubic-bezier(0.22, 1, 0.36, 1) both;
+  animation: staggerFadeUp 0.56s cubic-bezier(0.16, 1, 0.3, 1) both;
   animation-delay: var(--stagger-delay, 0ms);
 }
 

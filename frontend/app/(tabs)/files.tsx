@@ -60,7 +60,7 @@ export default function FilesScreen() {
     <ScrollView style={{ flex: 1 }} contentContainerStyle={{ padding: isMobile ? 16 : 32 }}>
       <YStack gap={isMobile ? 20 : 24} maxWidth={1200}>
         {/* Header */}
-        <XStack justifyContent="space-between" alignItems="center" flexWrap="wrap" gap="$3">
+        <XStack justifyContent="space-between" alignItems="center" flexWrap="wrap" gap="$3" className="stagger-item" style={{ '--stagger-delay': '0ms' } as any}>
           <YStack gap="$2" flex={1} minWidth={200}>
             <H2 color={textColor} fontWeight="700" fontSize={isMobile ? 22 : undefined}>
               文件管理
@@ -104,7 +104,7 @@ export default function FilesScreen() {
           padding={isMobile ? '$3' : '$4'}
           // @ts-ignore web-only
           className="stagger-item"
-          style={{ ...glassCard(isDark), '--stagger-delay': '0ms' } as any}
+          style={{ ...glassCard(isDark), '--stagger-delay': '80ms' } as any}
         >
           <XStack alignItems="center" gap="$3">
             <Search size={18} color={mutedColor} />
@@ -170,7 +170,7 @@ export default function FilesScreen() {
                     gap="$3"
                     // @ts-ignore web-only
                     className="stagger-item"
-                    style={{ '--stagger-delay': `${index * 50}ms` } as any}
+                    style={{ '--stagger-delay': `${160 + index * 50}ms` } as any}
                     {...(index < filteredFiles.length - 1 && {
                       borderBottomWidth: 1,
                       borderBottomColor: borderColor,

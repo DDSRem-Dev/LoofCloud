@@ -1,7 +1,8 @@
 from datetime import timezone
-from typing import Any
+from typing import Any, Literal
 
-from p115client import P115Client
+from orjson import loads, dumps
+from p115client import P115Client, check_response
 
 from app.core.config import cfg
 from app.core.logger import logger
@@ -11,6 +12,9 @@ from app.utils.timezone import TimezoneUtils
 
 COLLECTION_NAME = "system_settings"
 DOC_ID = "p115_cookies"
+REDIS_KEY_P115_USER_INFO = "p115:user_info"
+REDIS_KEY_P115_STORAGE_INFO = "p115:storage_info"
+P115_CACHE_TTL_SECONDS = 1800
 
 
 class P115Manager:
@@ -100,16 +104,29 @@ class P115Manager:
         cookies_str = "; ".join(f"{k}={v}" for k, v in cookie_dict.items())
         self._client = P115Client(cookies_str)
         await self._save_cookies(cookies_str, app)
+        try:
+            await db.get_redis().delete(
+                REDIS_KEY_P115_USER_INFO, REDIS_KEY_P115_STORAGE_INFO
+            )
+        except Exception as exc:
+            logger.debug(f"【P115Core】登入后清除缓存失败: {exc}")
         logger.info("【P115Core】扫码登入成功")
         return cookies_str
 
     async def logout(self) -> None:
         """
-        清除已保存的 cookies 和客户端实例
+        清除已保存的 cookies、客户端实例与 Redis 缓存
         """
         self._client = None
         coll = db.get_mongo_client()[cfg.mongodb.db_name][COLLECTION_NAME]
         await coll.delete_one({"_id": DOC_ID})
+        try:
+            redis_client = db.get_redis()
+            await redis_client.delete(
+                REDIS_KEY_P115_USER_INFO, REDIS_KEY_P115_STORAGE_INFO
+            )
+        except Exception as exc:
+            logger.warning(f"【P115Core】清除 Redis 缓存失败: {exc}")
         logger.info("【P115Core】已退出登录，cookies 已清除")
 
     async def get_status(self) -> dict[str, Any]:
@@ -130,6 +147,99 @@ class P115Manager:
                 "updated_at": updated_at,
             }
         return {"logged_in": False}
+
+    async def get_user_my_info(self) -> dict[str, Any] | None:
+        """
+        获取当前 115 用户信息。优先读 Redis 缓存，未命中再请求 115 API。
+
+        :return: 用户信息字典，未登入或失败时返回 None
+        """
+        if self._client is None:
+            return None
+        try:
+            redis_client = db.get_redis()
+            cached = await redis_client.get(REDIS_KEY_P115_USER_INFO)
+            if cached is not None:
+                return loads(cached)
+        except Exception as exc:
+            logger.debug(f"【P115Core】读取 user_info 缓存失败: {exc}")
+        try:
+            result = await self._client.user_my_info(async_=True)
+            check_response(result)
+            data = result.get("data")
+            if not isinstance(data, dict):
+                return None
+            try:
+                await db.get_redis().setex(
+                    REDIS_KEY_P115_USER_INFO,
+                    P115_CACHE_TTL_SECONDS,
+                    dumps(data).decode(),
+                )
+            except Exception as exc:
+                logger.debug(f"【P115Core】写入 user_info 缓存失败: {exc}")
+            return data
+        except Exception as exc:
+            logger.warning(f"【P115Core】user_my_info 失败: {exc}")
+            return None
+
+    async def get_fs_index_info(
+        self, payload: Literal[0, 1] = 0
+    ) -> dict[str, Any] | None:
+        """
+        获取 115 网盘存储/索引信息。优先读 Redis 缓存，未命中再请求 115 API。
+
+        :param payload: 通常传 0
+        :return: 存储信息字典，未登入或失败时返回 None
+        """
+        if self._client is None:
+            return None
+        cache_key = (
+            REDIS_KEY_P115_STORAGE_INFO
+            if payload == 0
+            else f"p115:storage_info:{payload}"
+        )
+        try:
+            redis_client = db.get_redis()
+            cached = await redis_client.get(cache_key)
+            if cached is not None:
+                return loads(cached)
+        except Exception as exc:
+            logger.debug(f"【P115Core】读取 storage_info 缓存失败: {exc}")
+        try:
+            result = await self._client.fs_index_info(payload, async_=True)
+            check_response(result)
+            data = result.get("data")
+            if not isinstance(data, dict):
+                return None
+            try:
+                await db.get_redis().setex(
+                    cache_key,
+                    P115_CACHE_TTL_SECONDS,
+                    dumps(data).decode(),
+                )
+            except Exception as exc:
+                logger.debug(f"【P115Core】写入 storage_info 缓存失败: {exc}")
+            return data
+        except Exception as exc:
+            logger.warning(f"【P115Core】fs_index_info 失败: {exc}")
+            return None
+
+    async def get_dashboard_info(self) -> dict[str, Any]:
+        """
+        获取仪表盘所需数据：用户信息 + 存储信息
+
+        :return: { logged_in, user_info?, storage_info? }
+        """
+        status = await self.get_status()
+        if not status.get("logged_in"):
+            return {"logged_in": False, "user_info": None, "storage_info": None}
+        user_info = await self.get_user_my_info()
+        storage_info = await self.get_fs_index_info(payload=0)
+        return {
+            "logged_in": True,
+            "user_info": user_info,
+            "storage_info": storage_info,
+        }
 
     @staticmethod
     async def _save_cookies(cookies_str: str, app: str) -> None:

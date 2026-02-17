@@ -6,6 +6,7 @@ from app.core.p115 import p115_manager
 from app.models.user import User
 from app.schemas.p115 import (
     P115ConfirmResponse,
+    P115DashboardResponse,
     P115LogoutResponse,
     P115PollResponse,
     P115QrcodeTokenResponse,
@@ -13,6 +14,18 @@ from app.schemas.p115 import (
 )
 
 router = APIRouter()
+
+
+@router.get("/dashboard", response_model=P115DashboardResponse)
+async def get_dashboard(_: User = Depends(get_current_admin)) -> P115DashboardResponse:
+    """
+    获取 115 仪表盘数据（用户信息 + 存储信息）
+
+    :param _: 当前管理员用户（由依赖注入）
+    :return: logged_in、user_info、storage_info
+    """
+    data = await p115_manager.get_dashboard_info()
+    return P115DashboardResponse(**data)
 
 
 @router.get("/status", response_model=P115StatusResponse)

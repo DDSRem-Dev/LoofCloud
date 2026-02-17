@@ -302,7 +302,7 @@ function P115LoginCard({ isDark, isMobile }: { isDark: boolean; isMobile: boolea
         borderRadius={radius.xl}
         padding={isMobile ? '$4' : '$5'}
         className="stagger-item"
-        style={{ ...glassCard(isDark), '--stagger-delay': '0ms' } as any}
+        style={{ ...glassCard(isDark), '--stagger-delay': '160ms' } as any}
       >
         <Text color={mutedColor}>加载中…</Text>
       </Card>
@@ -314,7 +314,7 @@ function P115LoginCard({ isDark, isMobile }: { isDark: boolean; isMobile: boolea
       borderRadius={radius.xl}
       padding={isMobile ? '$4' : '$5'}
       className="stagger-item"
-      style={{ ...glassCard(isDark), '--stagger-delay': '0ms' } as any}
+      style={{ ...glassCard(isDark), '--stagger-delay': '160ms' } as any}
     >
       <YStack gap="$4">
         {/* Header */}
@@ -518,7 +518,7 @@ export default function SettingsScreen() {
     <ScrollView style={{ flex: 1 }} contentContainerStyle={{ padding: isMobile ? 16 : 32 }}>
       <YStack gap={isMobile ? 20 : 24} maxWidth={1200}>
         {/* Header */}
-        <YStack gap="$2">
+        <YStack gap="$2" className="stagger-item" style={{ '--stagger-delay': '0ms' } as any}>
           <H2 color={textColor} fontWeight="700" fontSize={isMobile ? 22 : undefined}>
             配置
           </H2>
@@ -535,7 +535,7 @@ export default function SettingsScreen() {
           borderRadius={radius.xl}
           padding={isMobile ? '$2' : '$3'}
           className="stagger-item"
-          style={{ ...glassCard(isDark), gap: 0, flexWrap: 'wrap', '--stagger-delay': '0ms' } as any}
+          style={{ ...glassCard(isDark), gap: 0, flexWrap: 'wrap', '--stagger-delay': '80ms' } as any}
         >
           <Pressable
             onPress={() => setActiveTab('account')}

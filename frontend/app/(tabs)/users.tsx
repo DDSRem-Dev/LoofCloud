@@ -342,7 +342,7 @@ export default function UsersScreen() {
       ...glassCard(isDark),
       transition: 'transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.3s ease',
       cursor: Platform.OS === 'web' ? 'default' : undefined,
-      '--stagger-delay': `${staggerIndex * CARD_STAGGER}ms`,
+      '--stagger-delay': `${160 + staggerIndex * CARD_STAGGER}ms`,
     } as any)
 
   return (
@@ -360,7 +360,7 @@ export default function UsersScreen() {
     >
       <YStack gap={isMobile ? 20 : 28} width="100%">
         {/* Header */}
-        <YStack gap="$2">
+        <YStack gap="$2" className="stagger-item" style={{ '--stagger-delay': '0ms' } as any}>
           <H2 color={textColor} fontWeight="700" fontSize={isMobile ? 22 : undefined}>
             用户管理
           </H2>
@@ -375,7 +375,7 @@ export default function UsersScreen() {
           borderRadius={radius.xl}
           padding={isMobile ? '$2' : '$3'}
           className="stagger-item"
-          style={{ ...glassCard(isDark), gap: 0, flexWrap: 'wrap', '--stagger-delay': '0ms' } as any}
+          style={{ ...glassCard(isDark), gap: 0, flexWrap: 'wrap', '--stagger-delay': '80ms' } as any}
         >
           <Pressable
             onPress={() => setActiveTab('current')}
@@ -646,7 +646,7 @@ export default function UsersScreen() {
                         borderBottomColor={borderColor}
                         // @ts-ignore web-only
                         className="stagger-item"
-                        style={{ '--stagger-delay': `${index * ROW_STAGGER}ms` } as any}
+                        style={{ '--stagger-delay': `${80 + index * ROW_STAGGER}ms` } as any}
                       >
                         <YStack flex={1} minWidth={0}>
                           <Text

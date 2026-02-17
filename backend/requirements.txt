@@ -11,3 +11,4 @@ python-multipart>=0.0.22
 apscheduler>=4.0.0a6
 click>=8.1.0
 p115client==0.0.8.4.3
+orjson~=3.11.7

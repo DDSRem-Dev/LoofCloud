@@ -1,22 +1,4 @@
-/**
- * API 基础 URL。Web 同源时可设为 ''；开发时可为 http://localhost:8000
- */
-export function getApiUrl(): string {
-  if (typeof process !== 'undefined' && process.env?.EXPO_PUBLIC_API_URL) {
-    return process.env.EXPO_PUBLIC_API_URL
-  }
-  if (typeof window !== 'undefined') {
-    return '' // 同源
-  }
-  return 'http://localhost:8000'
-}
-
-const BASE = getApiUrl()
-
-export interface TokenResponse {
-  access_token: string
-  token_type: string
-}
+import { authFetch } from './client'
 
 export interface UserResponse {
   id: string
@@ -24,47 +6,6 @@ export interface UserResponse {
   role: string
   is_active: boolean
   created_at: string
-}
-
-/**
- * 带 Authorization 的 fetch，用于已登录请求
- */
-export async function authFetch(
-  token: string,
-  path: string,
-  options: RequestInit = {}
-): Promise<Response> {
-  const url = path.startsWith('http') ? path : `${BASE}${path.startsWith('/') ? '' : '/'}${path}`
-  return fetch(url, {
-    ...options,
-    headers: {
-      Authorization: `Bearer ${token}`,
-      'Content-Type': 'application/json',
-      ...options.headers,
-    },
-  })
-}
-
-/**
- * 登录：POST /api/v1/auth/login
- */
-export async function apiLogin(username: string, password: string): Promise<TokenResponse> {
-  const url = `${BASE}/api/v1/auth/login`
-  const res = await fetch(url, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ username, password }),
-  })
-  if (!res.ok) {
-    if (res.status === 404) {
-      throw new Error(
-        '接口未找到。请确认后端已启动，并在前端项目根目录配置 .env：EXPO_PUBLIC_API_URL=http://localhost:8000'
-      )
-    }
-    const err = await res.json().catch(() => ({ detail: res.statusText }))
-    throw new Error(Array.isArray(err.detail) ? err.detail.map((e: any) => e.msg || e).join(' ') : err.detail || '登录失败')
-  }
-  return res.json()
 }
 
 /**
@@ -141,7 +82,7 @@ export async function apiUpdateUser(
   })
   if (!res.ok) {
     const err = await res.json().catch(() => ({ detail: res.statusText }))
-    throw new Error(err.detail || '更新失败')
+    throw new Error(err.detail || '更新用户失败')
   }
   return res.json()
 }

@@ -1,5 +1,6 @@
 from app.core.config import cfg
 from app.core.logger import LoggerManager, logger
+from app.core.p115 import p115_manager
 from app.db.database import db
 from app.db.secret_key import ensure_secret_key
 from app.services.user import UserService
@@ -14,6 +15,7 @@ async def on_startup():
     secret_key = await ensure_secret_key(db.get_mongo_client())
     cfg.set_secret_key(secret_key)
     await UserService.ensure_default_admin()
+    await p115_manager.load_from_db()
     logger.info("应用启动完成")
 
 

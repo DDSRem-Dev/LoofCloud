@@ -5,7 +5,9 @@ from pydantic import BaseModel, Field
 
 
 class UserCreate(BaseModel):
-    """管理员创建用户时使用"""
+    """
+    管理员创建用户时使用
+    """
 
     username: str = Field(..., description="用户名")
     password: str = Field(..., description="明文密码")
@@ -14,21 +16,27 @@ class UserCreate(BaseModel):
 
 
 class UserLogin(BaseModel):
-    """登录请求"""
+    """
+    登录请求
+    """
 
     username: str = Field(..., description="用户名")
     password: str = Field(..., description="密码")
 
 
 class UserUpdate(BaseModel):
-    """当前用户修改自己的用户名或密码"""
+    """
+    当前用户修改自己的用户名或密码
+    """
 
     username: str | None = Field(default=None, description="新用户名")
     password: str | None = Field(default=None, description="新密码")
 
 
 class UserUpdateByAdmin(BaseModel):
-    """管理员修改任意用户的字段（均可选）"""
+    """
+    管理员修改任意用户的字段（均可选）
+    """
 
     username: str | None = Field(default=None, description="新用户名")
     password: str | None = Field(default=None, description="新密码")
@@ -37,7 +45,9 @@ class UserUpdateByAdmin(BaseModel):
 
 
 class UserResponse(BaseModel):
-    """用户信息响应"""
+    """
+    用户信息响应
+    """
 
     id: str = Field(..., description="用户 ID")
     username: str = Field(..., description="用户名")

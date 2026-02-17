@@ -1,6 +1,6 @@
 # LoofCloud Frontend
 
-现代化云端应用管理平台前端，采用 Expo + React Native Web 跨平台架构，提供 iOS、Android 和 Web 端统一的用户体验。
+管理平台前端，采用 Expo + React Native Web 跨平台架构，提供 iOS、Android 和 Web 端统一的用户体验。
 
 ## 概述
 
@@ -246,37 +246,6 @@ Lucide 图标不接受 Tamagui token 如 `$color`，需传入十六进制字符�
 </Button>
 ```
 
-## PWA 配置
-
-应用已配置为 PWA，支持：
-
-- **离线访问** — Service Worker 缓存资源
-- **安装提示** — 浏览器自动提示安装到主屏
-- **独立模式** — `display: "standalone"`
-- **主题色** — #5bcffa（天蓝）
-- **启动屏** — 自定义 splash 图
-
-## 性能优化
-
-1. **CSS 动画 vs JS** — 所有关键动画用 CSS keyframes（GPU 加速）
-2. **Fixed 定位光斑** — Aurora 层用 `position: fixed` 不参与文档流
-3. **pointer-events: none** — 交互元素不遮挡点击
-4. **transition: none !important** — 主题切换时禁用 transition 防止干扰
-5. **zIndex 分层** — 0(背景) → 1(内容) → 50(MobileHeader) → 99999(遮罩)
-
-## 浏览器兼容性
-
-- **Chrome/Edge** — ✓ 完全支持
-- **Firefox** — ✓ 完全支持
-- **Safari** — ✓ 支持（需 WebkitBackdropFilter for blur）
-- **iOS Safari** — ✓ 支持 PWA
-- **移动浏览器** — ✓ Responsive 完整适配
-
 ## 许可证
 
 本项目采用 **GPL 3.0** 许可证。详见 [LICENSE](../LICENSE)。
-
----
-
-**维护者** — LoofCloud Team
-**最后更新** — 2026-02-13

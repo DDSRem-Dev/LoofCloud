@@ -27,6 +27,7 @@ class Database:
             database=self._mongo[cfg.mongodb.db_name],  # noqa
             document_models=[
                 "app.models.user.User",
+                "app.models.file.File",
             ],
         )
         self._redis = aioredis.from_url(cfg.redis.url, decode_responses=True)

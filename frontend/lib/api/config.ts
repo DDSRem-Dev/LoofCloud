@@ -6,6 +6,10 @@ export interface BaseConfig {
   user_download_mediaext: string[]
 }
 
+export interface StorageConfig {
+  cloud_storage_box_dir: string | null
+}
+
 export const BASE_CONFIG_FIELDS: readonly {
   key: keyof BaseConfig
   label: string
@@ -37,8 +41,25 @@ export const BASE_CONFIG_FIELDS: readonly {
   },
 ]
 
+export const STORAGE_CONFIG_FIELDS: readonly {
+  key: keyof StorageConfig
+  label: string
+  placeholder: string
+  kind: 'string'
+  help?: string
+}[] = [
+  {
+    key: 'cloud_storage_box_dir',
+    label: '网盘箱目录',
+    placeholder: '例如 /media',
+    kind: 'string',
+    help: 'LoofCloud 会在你的网盘里单独建一个「箱子」用来放电影、剧集等媒体文件，这里就填这个箱子的路径。留空则使用默认位置。',
+  },
+]
+
 export interface AppConfig {
   base: BaseConfig
+  storage: StorageConfig
 }
 
 /**
@@ -58,7 +79,7 @@ export async function apiGetConfig(token: string): Promise<AppConfig> {
  */
 export async function apiUpdateConfig(
   token: string,
-  body: { base?: Partial<BaseConfig> }
+  body: { base?: Partial<BaseConfig>; storage?: Partial<StorageConfig> }
 ): Promise<AppConfig> {
   const res = await authFetch(token, '/api/v1/config', {
     method: 'PATCH',

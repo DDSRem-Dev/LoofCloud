@@ -5,7 +5,7 @@ from pydantic import BaseModel, Field
 
 from app.core.config import cfg
 from app.db.database import db
-from app.schemas.config import BaseConfigSchema
+from app.schemas.config import BaseConfigSchema, StorageConfigSchema
 
 
 COLLECTION_NAME = "system_settings"
@@ -18,6 +18,7 @@ class DbConfig(BaseModel):
     """
 
     base: BaseConfigSchema = Field(default_factory=BaseConfigSchema)
+    storage: StorageConfigSchema = Field(default_factory=StorageConfigSchema)
 
 
 def _get_coll(client: AsyncIOMotorClient, db_name: str | None = None):

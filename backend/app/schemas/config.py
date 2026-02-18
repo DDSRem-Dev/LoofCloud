@@ -3,7 +3,7 @@ from pydantic import BaseModel, Field
 
 class BaseConfigSchema(BaseModel):
     """
-    基础配置（API 读写）
+    基础配置
     """
 
     strm_base_url: str | None = Field(default=None, description="STRM 文件基础地址")
@@ -37,12 +37,24 @@ class BaseConfigSchema(BaseModel):
     )
 
 
+class StorageConfigSchema(BaseModel):
+    """
+    存储配置
+    """
+
+    cloud_storage_box_dir: str | None = Field(
+        default=None,
+        description="网盘箱目录",
+    )
+
+
 class ConfigResponseSchema(BaseModel):
     """
     配置 GET 响应
     """
 
     base: BaseConfigSchema = Field(default_factory=BaseConfigSchema)
+    storage: StorageConfigSchema = Field(default_factory=StorageConfigSchema)
 
 
 class ConfigUpdateSchema(BaseModel):
@@ -52,4 +64,7 @@ class ConfigUpdateSchema(BaseModel):
 
     base: BaseConfigSchema | None = Field(
         default=None, description="基础配置，仅传需要更新的字段"
+    )
+    storage: StorageConfigSchema | None = Field(
+        default=None, description="存储配置，仅传需要更新的字段"
     )

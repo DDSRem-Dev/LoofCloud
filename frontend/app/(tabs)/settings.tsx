@@ -1,13 +1,14 @@
 import React, { useState } from 'react'
 import { YStack, XStack, Text, H2, Paragraph } from 'tamagui'
 import { ScrollView, useWindowDimensions, Pressable } from 'react-native'
-import { Key, FileText } from 'lucide-react-native'
+import { Key, FileText, HardDrive } from 'lucide-react-native'
 import { radius, glassCard } from '@/constants/DesignTokens'
 import { useAppTheme } from '@/contexts/ThemeContext'
 import { P115LoginCard } from '@/components/settings/P115LoginCard'
 import { BaseConfigCard } from '@/components/settings/BaseConfigCard'
+import { StorageConfigCard } from '@/components/settings/StorageConfigCard'
 
-type SettingsTab = 'account' | 'base'
+type SettingsTab = 'account' | 'base' | 'storage'
 
 export default function SettingsScreen() {
   const { isDark } = useAppTheme()
@@ -100,6 +101,35 @@ export default function SettingsScreen() {
               基础配置
             </Text>
           </Pressable>
+          <Pressable
+            onPress={() => setActiveTab('storage')}
+            style={{
+              flex: isMobile ? 1 : undefined,
+              minWidth: isMobile ? 0 : undefined,
+              minHeight: 44,
+              paddingVertical: isMobile ? 12 : 14,
+              paddingHorizontal: isMobile ? 12 : 20,
+              borderRadius: radius.lg,
+              flexDirection: 'row',
+              alignItems: 'center',
+              justifyContent: 'center',
+              gap: 8,
+              backgroundColor: activeTab === 'storage' ? (isDark ? 'rgba(91,207,250,0.2)' : 'rgba(91,207,250,0.15)') : 'transparent',
+              borderWidth: 1,
+              borderColor: activeTab === 'storage' ? (isDark ? 'rgba(91,207,250,0.4)' : 'rgba(91,207,250,0.35)') : 'transparent',
+              transition: 'background-color 0.2s ease, border-color 0.2s ease',
+              cursor: 'pointer',
+            } as any}
+          >
+            <HardDrive size={18} color={activeTab === 'storage' ? (isDark ? '#7dd9fb' : '#5bcffa') : mutedColor} />
+            <Text
+              color={activeTab === 'storage' ? textColor : mutedColor}
+              fontWeight={activeTab === 'storage' ? '600' : '500'}
+              fontSize={isMobile ? 13 : 14}
+            >
+              存储配置
+            </Text>
+          </Pressable>
         </XStack>
 
         {/* 账户配置 tab */}
@@ -110,6 +140,11 @@ export default function SettingsScreen() {
         {/* 基础配置 tab */}
         {activeTab === 'base' && (
           <BaseConfigCard isDark={isDark} isMobile={isMobile} />
+        )}
+
+        {/* 存储配置 tab */}
+        {activeTab === 'storage' && (
+          <StorageConfigCard isDark={isDark} isMobile={isMobile} />
         )}
       </YStack>
     </ScrollView>

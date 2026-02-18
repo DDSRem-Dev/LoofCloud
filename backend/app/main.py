@@ -1,8 +1,11 @@
+import signal
 from contextlib import asynccontextmanager
+from multiprocessing import cpu_count
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from uvicorn import run
+from fastapi.responses import ORJSONResponse
+from uvicorn import Config, Server as UvicornServer
 
 from app.core.config import cfg
 from app.core.events import on_startup, on_shutdown
@@ -32,6 +35,7 @@ app = FastAPI(
     docs_url="/docs",
     redoc_url="/redoc",
     openapi_url="/openapi.json",
+    default_response_class=ORJSONResponse,
 )
 
 app.add_middleware(RequestLoggingMiddleware)
@@ -56,10 +60,27 @@ async def health_check():
     return {"status": "ok"}
 
 
-if __name__ == "__main__":
-    run(
-        "app.main:app",
+Server = UvicornServer(
+    Config(
+        app,
         host="0.0.0.0",
         port=8999,
         reload=cfg.app.debug,
+        workers=cpu_count() * 2 + 1,
+        timeout_graceful_shutdown=60,
     )
+)
+
+
+def signal_handler(signum, _):
+    """
+    信号处理函数，用于优雅停止服务
+    """
+    print(f"收到信号 {signum}，停止服务...")
+    Server.should_exit = True
+
+
+if __name__ == "__main__":
+    signal.signal(signal.SIGTERM, signal_handler)
+    signal.signal(signal.SIGINT, signal_handler)
+    Server.run()

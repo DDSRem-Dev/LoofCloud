@@ -28,6 +28,21 @@ class MongoDBConfig(BaseModel):
 
     url: str = Field(default="mongodb://localhost:27017", description="连接 URL")
     db_name: str = Field(default="loofcloud", description="数据库名")
+    max_pool_size: int = Field(
+        default=200, ge=1, le=1000, description="连接池最大连接数"
+    )
+    min_pool_size: int = Field(
+        default=20, ge=0, le=100, description="连接池最小保持连接数"
+    )
+    max_connecting: int = Field(default=10, ge=1, le=100, description="同时建连上限")
+    connect_timeout_ms: int = Field(default=10_000, ge=1000, description="建连超时(ms)")
+    socket_timeout_ms: int = Field(default=30_000, ge=1000, description="读写超时(ms)")
+    wait_queue_timeout_ms: int = Field(
+        default=10_000, ge=1000, description="等待连接超时(ms)"
+    )
+    max_idle_time_ms: int | None = Field(
+        default=60_000, description="连接最大空闲时间(ms)，None 不限制"
+    )
 
 
 class RedisConfig(BaseModel):
@@ -86,6 +101,13 @@ class _EnvSettings(BaseSettings):
 
     MONGODB_URL: str = "mongodb://localhost:27017"
     MONGODB_DB_NAME: str = "loofcloud"
+    MONGODB_MAX_POOL_SIZE: int = 200
+    MONGODB_MIN_POOL_SIZE: int = 20
+    MONGODB_MAX_CONNECTING: int = 10
+    MONGODB_CONNECT_TIMEOUT_MS: int = 10_000
+    MONGODB_SOCKET_TIMEOUT_MS: int = 30_000
+    MONGODB_WAIT_QUEUE_TIMEOUT_MS: int = 10_000
+    MONGODB_MAX_IDLE_TIME_MS: int | None = 60_000
 
     REDIS_URL: str = "redis://localhost:6379/0"
 
@@ -119,6 +141,13 @@ class ConfigManager:
         self.mongodb = MongoDBConfig(
             url=env.MONGODB_URL,
             db_name=env.MONGODB_DB_NAME,
+            max_pool_size=env.MONGODB_MAX_POOL_SIZE,
+            min_pool_size=env.MONGODB_MIN_POOL_SIZE,
+            max_connecting=env.MONGODB_MAX_CONNECTING,
+            connect_timeout_ms=env.MONGODB_CONNECT_TIMEOUT_MS,
+            socket_timeout_ms=env.MONGODB_SOCKET_TIMEOUT_MS,
+            wait_queue_timeout_ms=env.MONGODB_WAIT_QUEUE_TIMEOUT_MS,
+            max_idle_time_ms=env.MONGODB_MAX_IDLE_TIME_MS,
         )
         self.redis = RedisConfig(
             url=env.REDIS_URL,

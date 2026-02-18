@@ -1,3 +1,5 @@
+from typing import Literal, Optional
+
 from pydantic import BaseModel, Field
 
 
@@ -52,6 +54,24 @@ class StorageConfigSchema(BaseModel):
     )
 
 
+class FullSyncConfigSchema(BaseModel):
+    """
+    全量同步配置
+    """
+
+    overwrite_mode: Literal["never", "always"] = Field(
+        default="never", description="全量同步覆盖模式"
+    )
+    auto_download_mediainfo_enabled: bool = Field(
+        default=False, description="下载媒体信息文件开关"
+    )
+    min_file_size: Optional[int] = Field(
+        default=None, ge=0, description="全量生成最小文件大小"
+    )
+    path: Optional[str] = Field(default=None, description="全量同步路径")
+    detail_log: bool = Field(default=True, description="全量生成输出详细日志")
+
+
 class ConfigResponseSchema(BaseModel):
     """
     配置 GET 响应
@@ -59,6 +79,7 @@ class ConfigResponseSchema(BaseModel):
 
     base: BaseConfigSchema = Field(default_factory=BaseConfigSchema)
     storage: StorageConfigSchema = Field(default_factory=StorageConfigSchema)
+    full_sync: FullSyncConfigSchema = Field(default_factory=FullSyncConfigSchema)
 
 
 class ConfigUpdateSchema(BaseModel):
@@ -71,4 +92,7 @@ class ConfigUpdateSchema(BaseModel):
     )
     storage: StorageConfigSchema | None = Field(
         default=None, description="存储配置，仅传需要更新的字段"
+    )
+    full_sync: FullSyncConfigSchema | None = Field(
+        default=None, description="全量同步配置，仅传需要更新的字段"
     )

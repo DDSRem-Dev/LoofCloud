@@ -11,6 +11,14 @@ export interface StorageConfig {
   local_media_library_dir: string | null
 }
 
+export interface FullSyncConfig {
+  overwrite_mode: 'never' | 'always'
+  auto_download_mediainfo_enabled: boolean
+  min_file_size: number | null
+  path: string | null
+  detail_log: boolean
+}
+
 export const BASE_CONFIG_FIELDS: readonly {
   key: keyof BaseConfig
   label: string
@@ -68,6 +76,7 @@ export const STORAGE_CONFIG_FIELDS: readonly {
 export interface AppConfig {
   base: BaseConfig
   storage: StorageConfig
+  full_sync: FullSyncConfig
 }
 
 /**
@@ -87,7 +96,11 @@ export async function apiGetConfig(token: string): Promise<AppConfig> {
  */
 export async function apiUpdateConfig(
   token: string,
-  body: { base?: Partial<BaseConfig>; storage?: Partial<StorageConfig> }
+  body: {
+    base?: Partial<BaseConfig>
+    storage?: Partial<StorageConfig>
+    full_sync?: Partial<FullSyncConfig>
+  }
 ): Promise<AppConfig> {
   const res = await authFetch(token, '/api/v1/config', {
     method: 'PATCH',

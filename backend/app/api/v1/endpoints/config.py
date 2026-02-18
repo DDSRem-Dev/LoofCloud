@@ -14,7 +14,9 @@ async def get_app_config(_: User = Depends(get_current_admin)) -> ConfigResponse
     获取应用配置（仅管理员）
     """
     cfg = await get_config()
-    return ConfigResponseSchema(base=cfg.base, storage=cfg.storage)
+    return ConfigResponseSchema(
+        base=cfg.base, storage=cfg.storage, full_sync=cfg.full_sync
+    )
 
 
 @router.patch("", response_model=ConfigResponseSchema)
@@ -34,5 +36,11 @@ async def update_app_config(
         update = body.storage.model_dump(exclude_unset=True)
         if update:
             cfg.storage = cfg.storage.model_copy(update=update)
+    if body.full_sync is not None:
+        update = body.full_sync.model_dump(exclude_unset=True)
+        if update:
+            cfg.full_sync = cfg.full_sync.model_copy(update=update)
     await set_config(cfg)
-    return ConfigResponseSchema(base=cfg.base, storage=cfg.storage)
+    return ConfigResponseSchema(
+        base=cfg.base, storage=cfg.storage, full_sync=cfg.full_sync
+    )

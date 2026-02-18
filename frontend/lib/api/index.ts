@@ -16,7 +16,7 @@ export {
   apiUpdateUser,
 } from './user'
 
-export type { AppConfig, BaseConfig, StorageConfig } from './config'
+export type { AppConfig, BaseConfig, StorageConfig, FullSyncConfig } from './config'
 export { apiGetConfig, apiUpdateConfig, BASE_CONFIG_FIELDS, STORAGE_CONFIG_FIELDS } from './config'
 
 export type {

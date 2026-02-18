@@ -6,7 +6,11 @@ from pymongo import MongoClient
 
 from app.core.config import cfg
 from app.db.database import db
-from app.schemas.config import BaseConfigSchema, StorageConfigSchema
+from app.schemas.config import (
+    BaseConfigSchema,
+    FullSyncConfigSchema,
+    StorageConfigSchema,
+)
 
 
 COLLECTION_NAME = "system_settings"
@@ -20,6 +24,7 @@ class DbConfig(BaseModel):
 
     base: BaseConfigSchema = Field(default_factory=BaseConfigSchema)
     storage: StorageConfigSchema = Field(default_factory=StorageConfigSchema)
+    full_sync: FullSyncConfigSchema = Field(default_factory=FullSyncConfigSchema)
 
 
 def _get_coll(client: AsyncIOMotorClient, db_name: str | None = None):

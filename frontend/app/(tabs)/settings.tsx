@@ -1,14 +1,15 @@
 import React, { useState } from 'react'
 import { YStack, XStack, Text, H2, Paragraph } from 'tamagui'
 import { ScrollView, useWindowDimensions, Pressable } from 'react-native'
-import { Key, FileText, HardDrive } from 'lucide-react-native'
+import { Key, FileText, HardDrive, RefreshCw } from 'lucide-react-native'
 import { radius, glassCard } from '@/constants/DesignTokens'
 import { useAppTheme } from '@/contexts/ThemeContext'
 import { P115LoginCard } from '@/components/settings/P115LoginCard'
 import { BaseConfigCard } from '@/components/settings/BaseConfigCard'
 import { StorageConfigCard } from '@/components/settings/StorageConfigCard'
+import { FullSyncConfigCard } from '@/components/settings/FullSyncConfigCard'
 
-type SettingsTab = 'account' | 'base' | 'storage'
+type SettingsTab = 'account' | 'base' | 'storage' | 'full_sync'
 
 export default function SettingsScreen() {
   const { isDark } = useAppTheme()
@@ -30,7 +31,7 @@ export default function SettingsScreen() {
           </H2>
           {!isMobile && (
             <Paragraph color={mutedColor} fontSize={15}>
-              管理系统配置和偏好设置。
+              系统配置和网盘相关设置。
             </Paragraph>
           )}
         </YStack>
@@ -130,6 +131,35 @@ export default function SettingsScreen() {
               存储配置
             </Text>
           </Pressable>
+          <Pressable
+            onPress={() => setActiveTab('full_sync')}
+            style={{
+              flex: isMobile ? 1 : undefined,
+              minWidth: isMobile ? 0 : undefined,
+              minHeight: 44,
+              paddingVertical: isMobile ? 12 : 14,
+              paddingHorizontal: isMobile ? 12 : 20,
+              borderRadius: radius.lg,
+              flexDirection: 'row',
+              alignItems: 'center',
+              justifyContent: 'center',
+              gap: 8,
+              backgroundColor: activeTab === 'full_sync' ? (isDark ? 'rgba(91,207,250,0.2)' : 'rgba(91,207,250,0.15)') : 'transparent',
+              borderWidth: 1,
+              borderColor: activeTab === 'full_sync' ? (isDark ? 'rgba(91,207,250,0.4)' : 'rgba(91,207,250,0.35)') : 'transparent',
+              transition: 'background-color 0.2s ease, border-color 0.2s ease',
+              cursor: 'pointer',
+            } as any}
+          >
+            <RefreshCw size={18} color={activeTab === 'full_sync' ? (isDark ? '#7dd9fb' : '#5bcffa') : mutedColor} />
+            <Text
+              color={activeTab === 'full_sync' ? textColor : mutedColor}
+              fontWeight={activeTab === 'full_sync' ? '600' : '500'}
+              fontSize={isMobile ? 13 : 14}
+            >
+              全量同步
+            </Text>
+          </Pressable>
         </XStack>
 
         {/* 账户配置 tab */}
@@ -145,6 +175,11 @@ export default function SettingsScreen() {
         {/* 存储配置 tab */}
         {activeTab === 'storage' && (
           <StorageConfigCard isDark={isDark} isMobile={isMobile} />
+        )}
+
+        {/* 全量同步配置 tab */}
+        {activeTab === 'full_sync' && (
+          <FullSyncConfigCard isDark={isDark} isMobile={isMobile} />
         )}
       </YStack>
     </ScrollView>

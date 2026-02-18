@@ -7,9 +7,58 @@ import { radius, gradients, darkGradients, glassCard } from '@/constants/DesignT
 import { useAuth } from '@/contexts/AuthContext'
 import { StyledInput } from '@/components/shared/StyledInput'
 import { useToast, ToastViewport } from '@/components/shared/Toast'
-import { apiGetConfig, apiUpdateConfig } from '@/lib/api'
+import { apiGetConfig, apiUpdateConfig, BASE_CONFIG_FIELDS } from '@/lib/api'
+import type { BaseConfig } from '@/lib/api'
 
-/** 基础配置卡片（STRM 基础地址等） */
+type BaseConfigFormState = Record<keyof BaseConfig, string>
+
+const initialFormState = (): BaseConfigFormState =>
+  Object.fromEntries(
+    BASE_CONFIG_FIELDS.map((f) => [f.key, f.kind === 'comma_list' ? '' : ''])
+  ) as BaseConfigFormState
+
+/** 从 API 的 base 填到表单 state */
+function baseToFormState(base: BaseConfig): BaseConfigFormState {
+  const state = initialFormState()
+  for (const field of BASE_CONFIG_FIELDS) {
+    if (field.kind === 'string') {
+      const v = base[field.key]
+      state[field.key] = typeof v === 'string' ? v : (v ?? '') ? String(v) : ''
+    } else {
+      const arr = (base[field.key] as string[]) ?? []
+      state[field.key] = Array.isArray(arr) ? arr.join(', ') : ''
+    }
+  }
+  return state
+}
+
+/** 从表单 state 转为 API base payload，并做 comma_list 校验 */
+function formStateToBase(
+  state: BaseConfigFormState
+): { base: Partial<BaseConfig>; error?: string } {
+  const base: Partial<BaseConfig> = {}
+  for (const field of BASE_CONFIG_FIELDS) {
+    const raw = state[field.key] ?? ''
+    if (field.kind === 'string') {
+      ;(base as any)[field.key] = raw.trim() || null
+    } else {
+      const list = raw
+        .split(',')
+        .map((s) => s.trim().toLowerCase())
+        .filter(Boolean)
+      if (field.minItems != null && list.length < field.minItems) {
+        return {
+          base: {},
+          error: `${field.label}至少保留 ${field.minItems} 项`,
+        }
+        }
+      ;(base as any)[field.key] = list
+    }
+  }
+  return { base }
+}
+
+/** 基础配置卡片（由 BASE_CONFIG_FIELDS 驱动，与后端 BaseConfigSchema 一一对应） */
 export function BaseConfigCard({ isDark, isMobile }: { isDark: boolean; isMobile: boolean }) {
   const { token } = useAuth()
   const { show: showToast, toasts } = useToast()
@@ -18,23 +67,21 @@ export function BaseConfigCard({ isDark, isMobile }: { isDark: boolean; isMobile
   const mutedColor = isDark ? '#a1a1a1' : '#666666'
   const primaryColor = isDark ? '#7dd9fb' : '#5bcffa'
 
-  const [strmBaseUrl, setStrmBaseUrl] = useState('')
+  const [formState, setFormState] = useState<BaseConfigFormState>(initialFormState)
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
-  const [helpOpen, setHelpOpen] = useState(false)
+  const [helpFieldKey, setHelpFieldKey] = useState<keyof BaseConfig | null>(null)
   const [helpExiting, setHelpExiting] = useState(false)
   const [helpPopoverPos, setHelpPopoverPos] = useState({ top: 0, left: 0 })
-  const [helpHover, setHelpHover] = useState(false)
+  const [helpHoverKey, setHelpHoverKey] = useState<keyof BaseConfig | null>(null)
   const helpTriggerRef = useRef<View>(null)
 
-  const closeHelp = useCallback(() => {
-    setHelpExiting(true)
-  }, [])
+  const closeHelp = useCallback(() => setHelpExiting(true), [])
 
   useEffect(() => {
     if (!helpExiting) return
     const t = setTimeout(() => {
-      setHelpOpen(false)
+      setHelpFieldKey(null)
       setHelpExiting(false)
     }, 220)
     return () => clearTimeout(t)
@@ -45,7 +92,7 @@ export function BaseConfigCard({ isDark, isMobile }: { isDark: boolean; isMobile
     setLoading(true)
     try {
       const cfg = await apiGetConfig(token)
-      setStrmBaseUrl(cfg.base.strm_base_url ?? '')
+      setFormState(baseToFormState(cfg.base))
     } catch {
       showToast('error', '加载配置失败')
     } finally {
@@ -58,31 +105,38 @@ export function BaseConfigCard({ isDark, isMobile }: { isDark: boolean; isMobile
   }, [loadConfig])
 
   useEffect(() => {
-    if (!helpOpen) return
+    if (helpFieldKey == null) return
     const el = helpTriggerRef.current as any
     const dom = el instanceof HTMLElement ? el : el?._nativeTag ?? el?.getNode?.()
     if (dom?.getBoundingClientRect) {
       const rect = dom.getBoundingClientRect()
       setHelpPopoverPos({ top: rect.bottom + 6, left: rect.left })
     }
-  }, [helpOpen])
+  }, [helpFieldKey])
 
   const handleSave = async () => {
     if (!token) return
+    const { base, error } = formStateToBase(formState)
+    if (error) {
+      showToast('error', error)
+      return
+    }
     const startedAt = Date.now()
     setSaving(true)
     try {
-      await apiUpdateConfig(token, { base: { strm_base_url: strmBaseUrl || null } })
+      await apiUpdateConfig(token, { base })
       showToast('success', '保存成功')
     } catch (e: any) {
       showToast('error', e?.message || '保存失败')
     } finally {
       const elapsed = Date.now() - startedAt
-      const minShowing = 520
-      const delay = Math.max(0, minShowing - elapsed)
-      setTimeout(() => setSaving(false), delay)
+      setTimeout(() => setSaving(false), Math.max(0, 520 - elapsed))
     }
   }
+
+  const updateField = useCallback((key: keyof BaseConfig, value: string) => {
+    setFormState((prev) => ({ ...prev, [key]: value }))
+  }, [])
 
   if (loading) {
     return (
@@ -96,6 +150,10 @@ export function BaseConfigCard({ isDark, isMobile }: { isDark: boolean; isMobile
       </Card>
     )
   }
+
+  const helpContent = helpFieldKey
+    ? BASE_CONFIG_FIELDS.find((f) => f.key === helpFieldKey)?.help
+    : null
 
   return (
     <>
@@ -120,84 +178,94 @@ export function BaseConfigCard({ isDark, isMobile }: { isDark: boolean; isMobile
             </H4>
           </XStack>
 
-          <YStack gap="$2">
-            <XStack alignItems="center" gap="$2">
-              <Text fontSize={14} color={textColor} fontWeight="500">
-                STRM 文件基础地址
-              </Text>
-              <View
-                ref={helpTriggerRef}
-                style={{ alignItems: 'center', justifyContent: 'center' }}
-                // @ts-expect-error web hover
-                onMouseEnter={() => setHelpHover(true)}
-                onMouseLeave={() => setHelpHover(false)}
-              >
-                <Pressable
-                  onPress={() => setHelpOpen((v) => !v)}
-                  style={{
-                    padding: 4,
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    cursor: 'pointer',
-                  } as any}
-                >
-                  <HelpCircle size={16} color={helpHover ? primaryColor : mutedColor} />
-                </Pressable>
-              </View>
-            </XStack>
-            {helpOpen && typeof document !== 'undefined' && ReactDOM.createPortal(
-              <>
-                <style>{`
-                  @keyframes settings-help-popover-in {
-                    from { opacity: 0; transform: translateY(-6px) scale(0.98); }
-                    to { opacity: 1; transform: translateY(0) scale(1); }
-                  }
-                  @keyframes settings-help-popover-out {
-                    from { opacity: 1; transform: translateY(0) scale(1); }
-                    to { opacity: 0; transform: translateY(-6px) scale(0.98); }
-                  }
-                  .settings-help-popover { animation: settings-help-popover-in 0.22s cubic-bezier(0.21, 0.47, 0.32, 1); }
-                  .settings-help-popover.settings-help-popover-out { animation: settings-help-popover-out 0.2s cubic-bezier(0.4, 0, 1, 1) forwards; }
-                `}</style>
-                <div
-                  role="presentation"
-                  style={{ position: 'fixed', inset: 0, zIndex: 99998 }}
-                  onMouseDown={closeHelp}
-                />
-                <div
-                  className={`settings-help-popover${helpExiting ? ' settings-help-popover-out' : ''}`}
-                  onMouseDown={(e) => e.stopPropagation()}
-                  style={{
-                    position: 'fixed',
-                    top: helpPopoverPos.top,
-                    left: helpPopoverPos.left,
-                    zIndex: 99999,
-                    maxWidth: 320,
-                    padding: '14px 16px',
-                    paddingLeft: 18,
-                    borderRadius: radius.xl,
-                    background: isDark ? '#1c1c1e' : '#ffffff',
-                    border: `1px solid ${primaryColor}`,
-                    boxShadow: isDark ? '0 8px 24px rgba(0,0,0,0.3)' : '0 8px 24px rgba(0,0,0,0.08)',
-                    fontSize: 13,
-                    color: mutedColor,
-                    lineHeight: 1.55,
-                  }}
-                >
-                  用于生成 STRM 文件时的基础 URL，留空则不设置。
-                </div>
-              </>,
-              document.body,
-            )}
-            <StyledInput
-              placeholder="例如 http://127.0.0.1:8000"
-              value={strmBaseUrl}
-              onChangeText={setStrmBaseUrl}
-              width="100%"
-              minWidth={isMobile ? undefined : 320}
-              paddingVertical={isMobile ? 14 : undefined}
-            />
-          </YStack>
+          {BASE_CONFIG_FIELDS.map((field) => (
+            <YStack key={field.key} gap="$2">
+              <XStack alignItems="center" gap="$2">
+                <Text fontSize={14} color={textColor} fontWeight="500">
+                  {field.label}
+                </Text>
+                {field.help != null && (
+                  <View
+                    ref={helpFieldKey === field.key ? helpTriggerRef : undefined}
+                    style={{ alignItems: 'center', justifyContent: 'center' }}
+                    // @ts-expect-error web hover
+                    onMouseEnter={() => setHelpHoverKey(field.key)}
+                    onMouseLeave={() => setHelpHoverKey(null)}
+                  >
+                    <Pressable
+                      onPress={() => setHelpFieldKey((k) => (k === field.key ? null : field.key))}
+                      style={{
+                        padding: 4,
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        cursor: 'pointer',
+                      } as any}
+                    >
+                      <HelpCircle
+                        size={16}
+                        color={helpHoverKey === field.key ? primaryColor : mutedColor}
+                      />
+                    </Pressable>
+                  </View>
+                )}
+              </XStack>
+              {helpFieldKey === field.key &&
+                field.help &&
+                typeof document !== 'undefined' &&
+                ReactDOM.createPortal(
+                  <>
+                    <style>{`
+                      @keyframes settings-help-popover-in {
+                        from { opacity: 0; transform: translateY(-6px) scale(0.98); }
+                        to { opacity: 1; transform: translateY(0) scale(1); }
+                      }
+                      @keyframes settings-help-popover-out {
+                        from { opacity: 1; transform: translateY(0) scale(1); }
+                        to { opacity: 0; transform: translateY(-6px) scale(0.98); }
+                      }
+                      .settings-help-popover { animation: settings-help-popover-in 0.22s cubic-bezier(0.21, 0.47, 0.32, 1); }
+                      .settings-help-popover.settings-help-popover-out { animation: settings-help-popover-out 0.2s cubic-bezier(0.4, 0, 1, 1) forwards; }
+                    `}</style>
+                    <div
+                      role="presentation"
+                      style={{ position: 'fixed', inset: 0, zIndex: 99998 }}
+                      onMouseDown={closeHelp}
+                    />
+                    <div
+                      className={`settings-help-popover${helpExiting ? ' settings-help-popover-out' : ''}`}
+                      onMouseDown={(e) => e.stopPropagation()}
+                      style={{
+                        position: 'fixed',
+                        top: helpPopoverPos.top,
+                        left: helpPopoverPos.left,
+                        zIndex: 99999,
+                        maxWidth: 320,
+                        padding: '14px 16px',
+                        paddingLeft: 18,
+                        borderRadius: radius.xl,
+                        background: isDark ? '#1c1c1e' : '#ffffff',
+                        border: `1px solid ${primaryColor}`,
+                        boxShadow: isDark ? '0 8px 24px rgba(0,0,0,0.3)' : '0 8px 24px rgba(0,0,0,0.08)',
+                        fontSize: 13,
+                        color: mutedColor,
+                        lineHeight: 1.55,
+                      }}
+                    >
+                      {field.help}
+                    </div>
+                  </>,
+                  document.body
+                )}
+              <StyledInput
+                placeholder={field.placeholder}
+                value={formState[field.key]}
+                onChangeText={(v) => updateField(field.key, v)}
+                width="100%"
+                minWidth={isMobile ? undefined : 320}
+                paddingVertical={isMobile ? 14 : undefined}
+              />
+            </YStack>
+          ))}
 
           <Button
             unstyled

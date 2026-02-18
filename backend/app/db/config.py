@@ -1,22 +1,15 @@
-from typing import Any, Optional
+from typing import Any
 
 from motor.motor_asyncio import AsyncIOMotorClient
 from pydantic import BaseModel, Field
 
 from app.core.config import cfg
 from app.db.database import db
+from app.schemas.config import BaseConfigSchema
 
 
 COLLECTION_NAME = "system_settings"
 DOC_ID = "app_config"
-
-
-class DbBaseConfig(BaseModel):
-    """
-    基础配置
-    """
-
-    strm_base_url: Optional[str] = Field(default=None, description="STRM 文件基础地址")
 
 
 class DbConfig(BaseModel):
@@ -24,7 +17,7 @@ class DbConfig(BaseModel):
     数据库配置根模型
     """
 
-    base: DbBaseConfig = Field(default_factory=DbBaseConfig)
+    base: BaseConfigSchema = Field(default_factory=BaseConfigSchema)
 
 
 def _get_coll(client: AsyncIOMotorClient, db_name: str | None = None):

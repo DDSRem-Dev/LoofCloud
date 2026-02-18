@@ -7,6 +7,34 @@ class BaseConfigSchema(BaseModel):
     """
 
     strm_base_url: str | None = Field(default=None, description="STRM 文件基础地址")
+    user_rmt_mediaext: list[str] = Field(
+        default_factory=lambda: [
+            "mp4",
+            "mkv",
+            "ts",
+            "iso",
+            "rmvb",
+            "avi",
+            "mov",
+            "mpeg",
+            "mpg",
+            "wmv",
+            "3gp",
+            "asf",
+            "m4v",
+            "flv",
+            "m2ts",
+            "tp",
+            "f4v",
+        ],
+        min_length=1,
+        description="可整理媒体文件扩展名",
+    )
+    user_download_mediaext: list[str] = Field(
+        default_factory=lambda: ["srt", "ssa", "ass", "nfo"],
+        min_length=1,
+        description="可下载媒体数据扩展名",
+    )
 
 
 class ConfigResponseSchema(BaseModel):

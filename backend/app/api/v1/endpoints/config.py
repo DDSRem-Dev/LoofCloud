@@ -3,11 +3,7 @@ from fastapi import APIRouter, Depends
 from app.api.deps import get_current_admin
 from app.db.config import get_config, set_config
 from app.models.user import User
-from app.schemas.config import (
-    BaseConfigSchema,
-    ConfigResponseSchema,
-    ConfigUpdateSchema,
-)
+from app.schemas.config import ConfigResponseSchema, ConfigUpdateSchema
 
 router = APIRouter()
 
@@ -18,9 +14,7 @@ async def get_app_config(_: User = Depends(get_current_admin)) -> ConfigResponse
     获取应用配置（仅管理员）
     """
     cfg = await get_config()
-    return ConfigResponseSchema(
-        base=BaseConfigSchema(strm_base_url=cfg.base.strm_base_url),
-    )
+    return ConfigResponseSchema(base=cfg.base)
 
 
 @router.patch("", response_model=ConfigResponseSchema)
@@ -37,6 +31,4 @@ async def update_app_config(
         if update:
             cfg.base = cfg.base.model_copy(update=update)
     await set_config(cfg)
-    return ConfigResponseSchema(
-        base=BaseConfigSchema(strm_base_url=cfg.base.strm_base_url),
-    )
+    return ConfigResponseSchema(base=cfg.base)

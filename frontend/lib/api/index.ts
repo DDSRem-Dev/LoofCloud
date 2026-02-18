@@ -17,7 +17,7 @@ export {
 } from './user'
 
 export type { AppConfig, BaseConfig } from './config'
-export { apiGetConfig, apiUpdateConfig } from './config'
+export { apiGetConfig, apiUpdateConfig, BASE_CONFIG_FIELDS } from './config'
 
 export type {
   P115Status,

@@ -8,6 +8,7 @@ export interface BaseConfig {
 
 export interface StorageConfig {
   cloud_storage_box_dir: string | null
+  local_media_library_dir: string | null
 }
 
 export const BASE_CONFIG_FIELDS: readonly {
@@ -54,6 +55,13 @@ export const STORAGE_CONFIG_FIELDS: readonly {
     placeholder: '例如 /media',
     kind: 'string',
     help: 'LoofCloud 会在你的网盘里单独建一个「箱子」用来放电影、剧集等媒体文件，这里就填这个箱子的路径。留空则使用默认位置。',
+  },
+  {
+    key: 'local_media_library_dir',
+    label: '本地媒体库目录',
+    placeholder: '例如 /data/media',
+    kind: 'string',
+    help: '本地媒体库所在目录路径。',
   },
 ]
 

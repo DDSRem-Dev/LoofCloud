@@ -46,6 +46,10 @@ class StorageConfigSchema(BaseModel):
         default=None,
         description="网盘箱目录",
     )
+    local_media_library_dir: str | None = Field(
+        default=None,
+        description="本地媒体库目录",
+    )
 
 
 class ConfigResponseSchema(BaseModel):

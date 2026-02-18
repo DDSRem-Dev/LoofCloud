@@ -13,11 +13,15 @@ interface NavItem {
   href: string
 }
 
-const navItems: NavItem[] = [
-  { label: '仪表盘', icon: LayoutDashboard, href: '/' },
-  { label: '文件管理', icon: FolderOpen, href: '/files' },
-  { label: '用户管理', icon: Users, href: '/users' },
-  { label: '配置', icon: Settings, href: '/settings' },
+const navGroups: NavItem[][] = [
+  [
+    { label: '仪表盘', icon: LayoutDashboard, href: '/' },
+    { label: '文件', icon: FolderOpen, href: '/files' },
+  ],
+  [
+    { label: '用户', icon: Users, href: '/users' },
+    { label: '配置', icon: Settings, href: '/settings' },
+  ],
 ]
 
 const SIDEBAR_WIDTH = 256
@@ -137,56 +141,82 @@ export function Sidebar({ mobileOpen, onClose }: SidebarProps) {
 
         {/* Navigation Items */}
         <YStack paddingHorizontal="$3" gap="$1" marginTop="$2">
-          {navItems.map((item) => {
-            const isActive = pathname === item.href ||
-              (item.href !== '/' && pathname.startsWith(item.href))
-            const Icon = item.icon
-
-            return (
-              <Button
-                key={item.href}
-                unstyled
-                onPress={() => handleNav(item.href)}
-                borderRadius={10}
-                borderWidth={0}
-                paddingHorizontal="$4"
-                paddingVertical="$3"
-                cursor="pointer"
-                // @ts-ignore web-only
-                style={{
-                  ...(isActive
-                    ? {
-                        background: activeGradient,
-                        boxShadow: '0 4px 15px rgba(91, 207, 250, 0.4)',
-                        transform: 'scale(1)',
-                        animation: 'navPop 0.35s cubic-bezier(0.34, 1.56, 0.64, 1)',
-                      }
-                    : {
-                        background: 'transparent',
-                        transform: 'scale(1)',
-                      }),
-                  transition: 'background 0.25s ease, box-shadow 0.25s ease, transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1)',
-                }}
-                hoverStyle={!isActive ? {
-                  backgroundColor: isDark ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.04)',
-                } : undefined}
-              >
-                <XStack alignItems="center" gap="$3">
-                  <Icon
-                    size={20}
-                    color={isActive ? '#ffffff' : (isDark ? '#a1a1a1' : '#666666')}
-                  />
+          {navGroups.map((group, groupIdx) => (
+            <React.Fragment key={groupIdx}>
+              {groupIdx > 0 && (
+                <XStack
+                  marginTop="$3"
+                  marginBottom="$2"
+                  marginHorizontal="$2"
+                  alignItems="center"
+                  gap="$2"
+                >
                   <Text
-                    fontSize={15}
-                    fontWeight={isActive ? '600' : '400'}
-                    color={isActive ? '#ffffff' : (isDark ? '#a1a1a1' : '#666666')}
+                    fontSize={11}
+                    fontWeight="500"
+                    color={isDark ? 'rgba(255,255,255,0.45)' : 'rgba(0,0,0,0.4)'}
                   >
-                    {item.label}
+                    系统
                   </Text>
+                  <YStack
+                    flex={1}
+                    height={1}
+                    backgroundColor={isDark ? 'rgba(255,255,255,0.12)' : 'rgba(0,0,0,0.08)'}
+                  />
                 </XStack>
-              </Button>
-            )
-          })}
+              )}
+              {group.map((item) => {
+                const isActive = pathname === item.href ||
+                  (item.href !== '/' && pathname.startsWith(item.href))
+                const Icon = item.icon
+
+                return (
+                  <Button
+                    key={item.href}
+                    unstyled
+                    onPress={() => handleNav(item.href)}
+                    borderRadius={10}
+                    borderWidth={0}
+                    paddingHorizontal="$4"
+                    paddingVertical="$3"
+                    cursor="pointer"
+                    // @ts-ignore web-only
+                    style={{
+                      ...(isActive
+                        ? {
+                          background: activeGradient,
+                          boxShadow: '0 4px 15px rgba(91, 207, 250, 0.4)',
+                          transform: 'scale(1)',
+                          animation: 'navPop 0.35s cubic-bezier(0.34, 1.56, 0.64, 1)',
+                        }
+                        : {
+                          background: 'transparent',
+                          transform: 'scale(1)',
+                        }),
+                      transition: 'background 0.25s ease, box-shadow 0.25s ease, transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1)',
+                    }}
+                    hoverStyle={!isActive ? {
+                      backgroundColor: isDark ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.04)',
+                    } : undefined}
+                  >
+                    <XStack alignItems="center" gap="$3">
+                      <Icon
+                        size={20}
+                        color={isActive ? '#ffffff' : (isDark ? '#a1a1a1' : '#666666')}
+                      />
+                      <Text
+                        fontSize={15}
+                        fontWeight={isActive ? '600' : '400'}
+                        color={isActive ? '#ffffff' : (isDark ? '#a1a1a1' : '#666666')}
+                      >
+                        {item.label}
+                      </Text>
+                    </XStack>
+                  </Button>
+                )
+              })}
+            </React.Fragment>
+          ))}
         </YStack>
       </YStack>
 

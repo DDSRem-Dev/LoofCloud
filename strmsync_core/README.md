@@ -6,28 +6,35 @@
 
 需先安装 [Rust](https://rustup.rs/) 与 [maturin](https://github.com/PyO3/maturin)。
 
+**重要：必须用「运行 backend 时用的同一个 Python 环境」来安装，否则会装到别的环境里，backend 仍然找不到新版本。**
+
 ```bash
-# 安装 Rust 后
+# 1. 安装 Rust（若未安装）
 rustup default stable
 
-# 安装 maturin
+# 2. 安装 maturin
 pip install maturin
 
-# 在 strmsync_core 目录下，安装到当前环境（开发模式）
+# 3. 激活 backend 使用的 venv，再在 strmsync_core 目录下安装（二选一）
+# 方式 A：进 strmsync_core 目录，安装到当前环境
+cd strmsync_core && maturin develop
+
+# 方式 B：在 backend 目录下，用当前 venv 安装（会触发构建）
+cd backend && pip install -e ../strmsync_core
+```
+
+若装完后仍无 `Processor` 或行为不对，可强制重装：
+
+```bash
+pip uninstall strmsync_core -y
 cd strmsync_core && maturin develop
 ```
 
-若在 LoofCloud 的 backend 中使用，可在 backend 目录执行：
-
-```bash
-pip install -e ../strmsync_core
-```
-
-## Python 用法
+## Python 用法（类 API）
 
 ```python
 import json
-import strmsync_core
+from strmsync_core import Processor
 
 config = {
     "pan_media_dir": "/媒体库",
@@ -47,9 +54,24 @@ batch = [
         "sha1": "",
     },
 ]
-result_json = strmsync_core.process_batch(json.dumps(config), json.dumps(batch))
-data = json.loads(result_json)
-# data["strm_results"], data["download_results"], data["fail_results"], data["skip_results"]
+
+processor = Processor(json.dumps(config))
+result = processor.process_batch(json.dumps(batch))
+
+# result 为 PackedResult，属性为：
+# result.strm_results   -> [StrmInfo, ...]   (path_in_pan, pickcode, original_file_name)
+# result.download_results -> [DownloadInfo, ...] (path_in_pan, pickcode, sha1)
+# result.fail_results   -> [FailInfo, ...]   (path_in_pan, reason)
+# result.skip_results   -> [SkipInfo, ...]   (path_in_pan, reason)
+for s in result.strm_results:
+    print(s.path_in_pan, s.pickcode, s.original_file_name)
+```
+
+版本为模块属性（字符串）：
+
+```python
+import strmsync_core
+strmsync_core.__version__  # "0.1.0"
 ```
 
 ## 输入
@@ -78,17 +100,11 @@ data = json.loads(result_json)
 
 ## 输出
 
-返回 JSON 字符串，结构为 `PackedResult`：
+`Processor.process_batch(batch_json)` 返回 `PackedResult`，属性为：
 
-| 字段 | 说明 |
+| 属性 | 说明 |
 |------|------|
-| `strm_results` | 需生成 STRM 的项：`path_in_pan`, `pickcode`, `original_file_name` |
-| `download_results` | 需下载媒体信息的项：`path_in_pan`, `pickcode`, `sha1` |
-| `fail_results` | 判定失败项：`path_in_pan`, `reason` |
-| `skip_results` | 因规则跳过的项（仅当 `detail_log` 为 true 时填充）：`path_in_pan`, `reason` |
-
-## 版本
-
-```python
-strmsync_core.__version__()  # "0.1.0"
-```
+| `strm_results` | 需生成 STRM 的项：`StrmInfo`（path_in_pan, pickcode, original_file_name） |
+| `download_results` | 需下载媒体信息的项：`DownloadInfo`（path_in_pan, pickcode, sha1） |
+| `fail_results` | 判定失败项：`FailInfo`（path_in_pan, reason） |
+| `skip_results` | 因规则跳过的项（仅当 detail_log 为 true 时填充）：`SkipInfo`（path_in_pan, reason） |

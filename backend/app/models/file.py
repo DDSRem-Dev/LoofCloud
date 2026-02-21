@@ -25,8 +25,8 @@ class File(Document):
         name = "files"
         indexes = [
             IndexModel([("file_id", ASCENDING)], unique=True),
-            IndexModel([("sha1", ASCENDING)], unique=True),
-            IndexModel([("pick_code", ASCENDING)], unique=True),
+            IndexModel([("sha1", ASCENDING)]),
+            IndexModel([("pick_code", ASCENDING)]),
             IndexModel([("path", ASCENDING)], unique=True),
             IndexModel([("local_path", ASCENDING)], unique=True),
         ]
